@@ -53,6 +53,12 @@ promotePiece :: Piece -> Board
 
 We can test the process of the movement of a chess piece as well as the display of the chess board. Input validation will also need to be tested in case it is out of bounds or invalid. It will be helpful to include as many tests as posible as we build up the game to ensure all possibilities are functioning.
 
+- TestCase (assertBool "Checkmate Test" (checkCheckmate b))
+- TestCase (assertBool "Move Validity Test" (isMoveValid m p))
+- TestCase (asssertEqual "Move Test" nb (move b pc po b))
+- TestCase (assertEqual "Remove Piece Test" nb (removePiece b p b))
+- TestCase (assertEqual "Promote Piece Test" nb (promotePiece b p b))
+
 ## Stretch Goals
 
 - Thoughts on a "minimal viable product" and "stretch goals". Be sure to review
@@ -80,3 +86,4 @@ The expected functionality is listed below
 
 - The data structure for the chess board and pieces are created
 - Input prompts and validations for moves
+- Test cases for basic functions have been completed
