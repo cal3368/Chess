@@ -77,3 +77,4 @@ The expected functionality is listed below
 
 - The data structure for the chess board and pieces are created
 - Input prompts and validations for moves
+- Initial test cases available for the data structures and basic functionality
