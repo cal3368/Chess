@@ -37,13 +37,13 @@ Color
 Square
 Board
 
-Some important functions:
-checkCheckmate :: (Board) -> Bool
-isMoveValid :: move -> Piece -> Bool
-showBoard :: IO()
-move :: Piece -> Position -> Maybe Board
-removePiece :: Piece -> Board
-promotePiece :: Piece -> Board
+Some important functions:<br>
+`checkCheckmate :: (Board) -> Bool` <br>
+`isMoveValid :: move -> Piece -> Bool` <br>
+`showBoard :: IO()` <br>
+`move :: Piece -> Position -> Maybe Board`<br>
+`removePiece :: Piece -> Board` <br>
+`promotePiece :: Piece -> Board` <br>
 
 ## Testing
 
