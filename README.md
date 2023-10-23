@@ -1,7 +1,8 @@
-# Project Title
+# Chess
 
 Team members:
 
-- Name1
-- Name2
-- Name3
+- Jordan Chin
+- Chung-An Huang
+- Charlie Leyens
+- Badaruddin Mahabubali Shaikh
