@@ -1,4 +1,4 @@
-# Project Title
+# Chess
 
 Team members:
 
@@ -11,7 +11,7 @@ Team members:
 
 A summary description of the overall goal of the project.
 
-We are going to create a chess game using concepts learned throughout the semester. This includes IO interaction between two users to display the chess board and pieces. We also want to implement input validation for valid moves and a coordinate grid to represent each point on the board from a-h and 1-8. Chess pieces have to moved and removed correctly and when a king piece is checked, the player is warned and must move the king out of check. Castling is not added? 
+We are going to create a chess game using concepts learned throughout the semester. This includes IO interaction between two users to display the chess board and pieces. We also want to implement input validation for valid moves and a coordinate grid to represent each point on the board from a-h and 1-8. We will symbolically represent each type of piece in its current location on the board. Chess pieces have to be moved and removed correctly and when a king piece is checked, the player is warned and must move the king out of check. When checkmate is reached the players will be notified of who won and the game will end. We need to define a situation for a draw occurring. Castling is not added? We may attempt to include a timed option to for timed games of chess. We will follow the rules of a traditional chess game.
 
 ## Additional Details
 
@@ -19,7 +19,7 @@ We are going to create a chess game using concepts learned throughout the semest
   how a user would interact with the program or some interesting "input/output"
   examples.
 
-At the beginning of the game, the first player can choose if they want to be white or black. At every turn, the chess board will appear and a prompt will appear such as 'It is white's turn. Please input a position'. The user will have to select a coordinate with a piece and another coordinate valid coordinate. If the destination is taken by an opposing piece, he opposing piece will be removed and the spot is taken. An example input is 'a5 a6' which moves a pawn from the position a5 to a6. If an invalid input like 's1 a5' is used, we send out a message that says 'Invalid move. Please try again'
+At the beginning of the game, the first player can choose if they want to be white or black. At every turn, the chess board will appear and a prompt will appear such as 'It is white's turn. Please input a position'. The user will have to select a coordinate with a piece and another valid coordinate. If the destination is taken by an opposing piece, the opposing piece will be removed and the spot is taken. An example input is 'a5 a6' which moves a pawn from the position a5 to a6. If an invalid input like 's1 a5' is used, we send out a message that says 'Invalid move. Please try again' We may implement further help messages that tell the player the appropriate type of move for the pieces. After each move the current game board will be displayed. At the end, a message of "Checkmate! 'COLOR' Wins!" If we end up including an implementation of a timer, after each turn, it would display the time remaining for the player who just went and the time remaining for the player who's turn it is now. If the time reaches zero, the players will be alerted and the other player will win. For example "White has run out of time! Black Wins!". Further commands for the users will be to forfeit, agree to draw, and possibly save game.
 
 ## Key components
 - A sketch of intended components (key functions, key data structures, separate
@@ -28,14 +28,29 @@ At the beginning of the game, the first player can choose if they want to be whi
   "view" module (e.g., a "text view" module that could be replaced by a "GUI
   view" module).
 
-We can represent each chess piece as an algebraic data type where they can get the color, chess type and the coordinate it is currently in. In addition, we can represent the 8x8 chessboard as an array of arrays where we represent each coordinate as a Maybe data type `[[Maybe Chesspiece]]`. 
+We will represent the game using the model-view-controller design. We can represent each chess piece as an algebraic data type where they can get the color, chess type and the coordinate it is currently in. In addition, we can represent the 8x8 chessboard as an array of arrays where we represent each coordinate as a Maybe data type. This woud fullfill a text view module which could possibly be replaced by a GUI view module if it seems doable. Each sqaure in the board can be represented by a data type that either contains a chess piece or is Empty `[[Maybe Chesspiece]]`. The functionality of the game will be contained in the model-controller module. This module will contain functions related to moving the pieces, determining validity of moves, and determining a winner. We may also need a data type to represent whether the game is over or not. The view module will just visually represent the internal state of the game kept by the model-controller module. 
+
+Some important data structures:
+  piece
+  color
+  square
+  board
+  gameOver
+
+Some important functions:
+  checkCheckmate :: (Whether game is over) -> Bool
+  checKMove :: move -> Bool
+  showBoard
+  move
+  removePiece
+  promotePiece (if pawn reaches other side)
 
 ## Testing
 - Thoughts on testing. These might include critical functions or data structures
   that will be given
   [`tasty`](https://hackage.haskell.org/package/tasty) tests.
 
-We can test the process of the movement of a chess piece as well as the display of the chess board. Input validation will also need to be tested in case it is out of bounds or invalid. 
+We can test the process of the movement of a chess piece as well as the display of the chess board. Input validation will also need to be tested in case it is out of bounds or invalid. It will be helpful to include as many tests as posible as we build up the game to ensure all possibilities are functioning.
 
 ## Stretch Goals
 - Thoughts on a "minimal viable product" and "stretch goals". Be sure to review
@@ -52,6 +67,8 @@ Some additional features that can be included is
 - Flipping the board at every turn so that the user's pieces are at the bottom of the screen.
 - Special moves like Castling
 - Draw or stalement condition
+- Save/resume game option
+- GUI representation that functions instead of text input
 
 ## Functionality at Checkpoint
 - Expected functionality to be completed at the Checkpoint.
