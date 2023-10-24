@@ -51,10 +51,13 @@ Some important functions:<br>
   that will be given
   [`tasty`](https://hackage.haskell.org/package/tasty) tests.
 
-We can test the process of the movement of a chess piece as well as the display of the chess board. Input validation will also need to be tested in case it is out of bounds or invalid. It will be helpful to include as many tests as posible as we build up the game to ensure all possibilities are functioning.
+We can test the process of the movement of a chess piece as well as the display of the chess board. Input validation will also need to be tested in case it is out of bounds or invalid. It will be helpful to include as many tests as posible as we build up the game to ensure all possibilities are functioning. 
+
+The following is a sample list of test cases we will develop to ensure the basic funtionality of the program. In addition, we will perform tests for the data structures used to store different chess pieces and their properties.
 
 - TestCase (assertBool "Checkmate Test" (checkCheckmate b))
 - TestCase (assertBool "Move Validity Test" (isMoveValid m p))
+- TestCase (assertBool "Board validity test" (isBoardValid b))
 - TestCase (asssertEqual "Move Test" nb (move b pc po b))
 - TestCase (assertEqual "Remove Piece Test" nb (removePiece b p b))
 - TestCase (assertEqual "Promote Piece Test" nb (promotePiece b p b))
