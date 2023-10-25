@@ -1,0 +1,34 @@
+Fair proposal.
+
+Chess logic should be fairly straightforward to implement, but not
+quite as trivial as the GTicTacToe assignment.  Handling castling
+should be fairly straightforward (i.e., not a stretch goal).  The full
+rules for a draw in chess (https://en.wikipedia.org/wiki/Draw_(chess))
+are a little complicated, so might be reasonable for a stretch goal.
+
+There are probably a number of Haskell TUI frameworks to choose from;
+do some homework, but don't spend too much time deciding on a
+framework.
+
+Might consider using Unicode chess characters in terminal UI (♔♛).
+
+Consider how to organize the game state and game rules so as to make
+good use of Haskell features; don't want an exhaustive enumeration of
+possible behaviors, but rather a more declarative specification of
+legal moves.
+
+For a four-person team, you should easily be able to implement the
+full game of chess and some of the stretch goals.
+
+For saving/resuming of game state, consider using Portable Game
+Notation (PGN; https://en.wikipedia.org/wiki/Portable_Game_Notation),
+which will give you access to a large number of test cases.
+
+Including timers for players is a reasonable stretch goal.
+
+Another possible stretch goal would be adding network support.  Does
+add a lot of necessary error handling (e.g., timeouts, dropped
+connections).
+
+
+Score: 10/10
