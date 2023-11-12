@@ -1,13 +1,16 @@
+module Chess where
+
+import Chess1
 import Data.Char
-import Data.Maybe qualified as Maybe
-import Text.Read (readMaybe)
 
 getName :: String -> IO String
 getName color = do
   putStrLn ("Enter name of " ++ color ++ ":")
   getLine
 
-promptForAndValidate :: String -> IO ((Char, Int), (Char, Int))
+-- getPiece :: Board -> Location -> Maybe Piece
+
+promptForAndValidate :: String -> IO (Location, Location)
 promptForAndValidate msg = do
   putStrLn msg
   input <- getLine
@@ -45,9 +48,7 @@ play p1 p2 1 = do
   case move of
     (('q', 0), ('q', 0)) ->
       return ()
-    -- (('s', 0), ('s', 0)) ->
-    --   saveGame
-    -- Possible add a pause game and restart game option
+    -- Possible add a pause game, save game, and restart game option
     _ ->
       -- make move
       play p1 p2 2

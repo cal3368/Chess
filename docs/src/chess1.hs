@@ -1,7 +1,18 @@
-data Color = White | Black
+module Chess1
+  ( Color (..),
+    Type (..),
+    Square,
+    Location,
+    Piece,
+  )
+where
 
-data Type = Pawn | Rook | Knight | Bishop | Queen | King
+data Color = White | Black deriving (Show, Eq)
 
-data Square = Piece | Empty
+data Type = Pawn | Rook | Knight | Bishop | Queen | King deriving (Show, Eq)
+
+data Square = Square Piece | Empty
 
 type Location = (Char, Int)
+
+data Piece = Piece Color Type deriving (Show, Eq)
