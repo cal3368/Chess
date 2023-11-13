@@ -1,3 +1,19 @@
+module DrawBoard
+  ( Color (..),
+    Type (..),
+    Square,
+    Piece,
+    Location,
+    Board,
+    new,
+    newHelper,
+    drawHorizontal,
+    drawVertical,
+    draw,
+    getStringCoor,
+  )
+where
+
 import Data.Map.Strict qualified as Map
 
 data Color = White | Black
@@ -11,6 +27,8 @@ data Square = Piece | Empty
 
 data Piece = Color :@: Type
   deriving (Eq, Read, Show)
+
+type Location = (Char, Int)
 
 -- data Player = White | Black
 --   deriving (Eq, Ord, Read, Show)
