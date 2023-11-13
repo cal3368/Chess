@@ -7,6 +7,8 @@ module Chess1
   )
 where
 
+import Data.Array
+
 data Color = White | Black deriving (Show, Eq)
 
 data Type = Pawn | Rook | Knight | Bishop | Queen | King deriving (Show, Eq)
