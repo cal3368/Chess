@@ -147,22 +147,6 @@ newBoard =
 --   | cur_row == 1 = drawVertical cur_row 7 (Map.toList coor) ++ "A B C D E F G H"
 --   | otherwise = drawVertical cur_row 7 (Map.toList coor) ++ drawHorizontal 7 ++ draw (pred cur_row) (Board (Map.drop 8 coor))
 
--- chessPiece :: Square -> String
--- chessPiece Empty = " "
--- chessPiece (Piece White Pawn) = "\x2659"
--- chessPiece (Piece White Rook) = "\x2656"
--- chessPiece (Piece White Knight) = "\x2658"
--- chessPiece (Piece White Bishop) = "\x2657"
--- chessPiece (Piece White Queen) = "\x2655"
--- chessPiece (Piece White King) = "\x2654"
--- chessPiece (Piece Black Pawn) = "\x265F"
--- chessPiece (Piece Black Rook) = "\x265C"
--- chessPiece (Piece Black Knight) = "\x265E"
--- chessPiece (Piece Black Bishop) = "\x265D"
--- chessPiece (Piece Black Queen) = "\x265B"
--- chessPiece (Piece Black King) = "\x265A"
--- chessPiece _ = " "
-
 getSquare :: Board -> Location -> Square
 getSquare board (c, i) = Data.Maybe.fromMaybe Empty (Map.lookup (c, i) board)
 

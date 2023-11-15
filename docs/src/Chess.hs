@@ -34,15 +34,29 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Knight)
 checkLegal (c1, i1) (c2, i2) (Piece White Pawn)
   | i1 == 2 && c1 == c2 && (i2 - i1 == 2 || i2 - i1 == 1) = True
   | c1 == c2 && (i2 - i1 == 2 || i2 - i1 == 1) = True
+  | abs (c2i - c1i) == 1 && (i2 - i1) == 1 = True
   | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
 checkLegal (c1, i1) (c2, i2) (Piece Black Pawn)
   | i1 == 7 && c1 == c2 && (i1 - i2 == 2 || i1 - i2 == 1) = True
   | c1 == c2 && (i1 - i2 == 2 || i1 - i2 == 1) = True
+  | abs (c2i - c1i) == 1 && (i1 - i2) == 1 = True
   | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
 checkLegal (c1, i1) (c2, i2) (Piece _ King)
   | abs (i2 - i1) == 1 && c2 == c1 = True
   | abs (c2i - c1i) == 1 && i2 == i1 = True
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 1 = True
+  | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
+checkLegal (c1, i1) (c2, i2) (Piece _ Queen)
+  | c1 == c2 || i1 == i2 || abs (i2 - i1) == abs (c2i - c1i) = True
   | otherwise = False
   where
     c1i = ord c1 - ord 'a'
