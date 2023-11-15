@@ -61,6 +61,18 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Queen)
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
+checkLegal (c1, i1) (c2, i2) (Piece _ Rook)
+  | c1 == c2 || i1 == i2 = True
+  | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
+checkLegal (c1, i1) (c2, i2) (Piece _ Bishop)
+  | abs (i2 - i1) == abs (c2i - c1i) = True
+  | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
 
 getPiece :: Square -> Piece
 getPiece (Square piece) = piece
