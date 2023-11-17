@@ -7,12 +7,6 @@ module DrawBoard
     Board,
     newBoard,
     drawBoard,
-    -- new,
-    -- newHelper,
-    -- drawHorizontal,
-    -- drawVertical,
-    -- draw,
-    -- chessPiece,
   )
 where
 
@@ -53,10 +47,6 @@ instance Show Square where
 
 type Location = (Char, Int)
 
--- data Board where
---   Board :: (Map.Map (Int, Int) Square) -> Board
---   deriving (Eq, Show)
-
 type Board = Map.Map Location Square
 
 newBoard :: Board
@@ -96,72 +86,8 @@ newBoard =
       (('h', 7), Square (Piece Black Pawn))
     ]
 
--- new :: Board
--- new = Board (Map.fromList (newHelper 0 0))
-
--- createPiecesRow :: Color -> [((Int, Int), Square)]
--- createPiecesRow White =
---   [ ((0, 0), Square (Piece White Rook)),
---     ((0, 1), Square (Piece White Knight)),
---     ((0, 2), Square (Piece White Bishop)),
---     ((0, 3), Square (Piece White Queen)),
---     ((0, 4), Square (Piece White King)),
---     ((0, 5), Square (Piece White Bishop)),
---     ((0, 6), Square (Piece White Knight)),
---     ((0, 7), Square (Piece White Rook))
---   ]
--- createPiecesRow Black =
---   [ ((7, 0), Square (Piece Black Rook)),
---     ((7, 1), Square (Piece Black Knight)),
---     ((7, 2), Square (Piece Black Bishop)),
---     ((7, 3), Square (Piece Black Queen)),
---     ((7, 4), Square (Piece Black King)),
---     ((7, 5), Square (Piece Black Bishop)),
---     ((7, 6), Square (Piece Black Knight)),
---     ((7, 7), Square (Piece Black Rook))
---   ]
-
--- createWhitePawns :: Int -> [((Int, Int), Square)]
--- createWhitePawns 7 = [((1, 7), Square (Piece White Pawn))]
--- createWhitePawns col = ((1, col), Square (Piece White Pawn)) : createWhitePawns (succ col)
-
--- createBlackPawns :: Int -> [((Int, Int), Square)]
--- createBlackPawns 7 = [((1, 7), Square (Piece Black Pawn))]
--- createBlackPawns col = ((6, col), Square (Piece Black Pawn)) : createBlackPawns (succ col)
-
--- newHelper :: Int -> Int -> [((Int, Int), Square)]
--- newHelper curm curn
---   | curm == 0 = createPiecesRow White ++ newHelper (curm + 1) 0
---   | curm == 1 = createWhitePawns 0 ++ newHelper (curm + 1) 0
---   | curm == 6 = createBlackPawns 0 ++ newHelper (curm + 1) 0
---   | curm + 1 == 8 = createPiecesRow Black
---   | curn + 1 == 8 = ((curm, curn), Empty) : newHelper (curm + 1) 0
---   | otherwise = ((curm, curn), Empty) : newHelper curm (curn + 1)
-
--- drawHorizontal :: Int -> String
--- drawHorizontal 0 = "-\n"
--- drawHorizontal n = "-+" ++ drawHorizontal (n - 1)
-
--- draw :: Int -> Board -> String
--- draw cur_row (Board coor)
---   | cur_row == 1 = drawVertical cur_row 7 (Map.toList coor) ++ "A B C D E F G H"
---   | otherwise = drawVertical cur_row 7 (Map.toList coor) ++ drawHorizontal 7 ++ draw (pred cur_row) (Board (Map.drop 8 coor))
-
 getSquare :: Board -> Location -> Square
 getSquare board (c, i) = Data.Maybe.fromMaybe Empty (Map.lookup (c, i) board)
-
--- test = new
-
--- drawVertical :: Int -> Int -> [((Int, Int), Square)] -> String
--- drawVertical _ 0 (x : xs) = chessPiece (snd x) ++ "\n"
--- drawVertical cur_row num (x : xs)
---   | num == 7 = show cur_row ++ " " ++ chessPiece (snd x) ++ "|" ++ drawVertical cur_row (num - 1) xs
---   | otherwise = chessPiece (snd x) ++ "|" ++ drawVertical cur_row (num - 1) xs
-
--- main :: IO ()
--- main = do
---   hSetEncoding stdout utf8
---   putStrLn (chessPiece (Piece White Pawn))
 
 drawBoard :: Board -> IO ()
 drawBoard board = do

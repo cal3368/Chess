@@ -135,7 +135,18 @@ play board p1 p2 1 = do
     _ ->
       -- make move
       play board p1 p2 2
-play board p1 p2 _ = return ()
+play board p1 p2 _ = do
+  putStrLn ""
+  drawBoard board
+  putStrLn ""
+  move <- promptForAndValidate (p2 ++ " make your move:")
+  case move of
+    (('q', 0), ('q', 0)) ->
+      return ()
+    -- Possible add a pause game, save game, and restart game option
+    _ ->
+      -- make move
+      play board p1 p2 1
 
 main :: IO ()
 main = do
