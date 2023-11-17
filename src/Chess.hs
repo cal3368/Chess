@@ -3,6 +3,15 @@ module Chess where
 import Data.Char (digitToInt, isAlpha, isDigit, ord)
 import Data.Map.Strict qualified as Map
 import DrawBoard
+  ( Board,
+    Color (..),
+    Location,
+    Piece (..),
+    Square (Square),
+    Type (..),
+    drawBoard,
+    newBoard,
+  )
 
 getName :: String -> IO String
 getName color = do
