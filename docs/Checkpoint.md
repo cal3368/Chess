@@ -1,30 +1,39 @@
-# Project Title
+# Chess
 
 Team members:
 
-- Name1
-- Name2
-- Name3
+- Jordan Chin
+- Badaruddin Shaikh
+- Charlie Leyens
 
 ## Summary Description
 
-Reiterate the summary description of the overall goal of the project (updated as
-necessary from the Proposal document).
+We are going to create a chess game using concepts learned throughout the semester. This includes IO interaction between two users to display the chess board and pieces. We also want to implement input validation for valid moves and a coordinate grid using Data.Map.Struct to represent each point on the board from a-h and 1-8. We will symbolically represent each type of piece in its current location on the board. Chess pieces have to be moved and removed correctly and when a king piece is checked, the player is warned and must move the king out of check or another piece to protect the king. When checkmate is reached the players will be notified of who won and the game will end. We need to define a situation for a draw occurring. All the traditional chess rules will be followed. If time permits we may add support for timed games and a stalemate situation.
 
 ## Checkpoint Progress Summary
 
 Give a summary of the progress made and lessons learned thus far.
+
+### IO Functionality
+
+We were able to get a working IO function that takes user input for names, and moves. The input for moves is checked for validity in terms of being in the proper form and being within the proper range. There is an input option for quit that ends the game. This option will be more of a resigning option eventually. We will also implement an offer draw input that offers a draw to your opponent and the opponent can respond yes or no. The main IO function switches back and forth between each person’s turn currently but does not have functionality beyond that. We have created further functions for checking the validity of each move but have not implemented them into the game functioning yet and moving/removing pieces. To see the visual implementation of our board one can run ghci Chess and then run the main function.
+
+### Testing
+
+We wrote tests to manually test out the pure functions extensively, which upon further research we realized wasn't the best idea, we plan to switch to HUnit testing we did try doing that trying to re-initialize the project with `stack new` (since we needed to have a cabal file and add the HUnit dependency) but that was quite last minute and we realized that we started running into different problems and we decided to push the restructuring to after the checkpoint 1.
+As for now we have testing that tests the pure functions, while we couldn’t test out the impure functions. Since we couldn’t find the way to check what's getting printed on the terminal. We explored the idea of converting all our impure functions to pure functions so they return their results and we can compare to the expected result. Although we could update the signature of all the IO() functions to also return the data that is getting returned from the function. But that did not look like the most efficient way to do it. We have been reading about testing in detail now and will most likely incline towards limiting the number of impure functions , code reuse and using HUnit testing and QuickCheck.
 
 ## Additional Details
 
 - List any additional Haskell libraries required for the project (i.e., what
   `extra-deps` have been added to `stack.yaml` files and `[build-depends]` have
   been added to `package.yaml`/`<package_name>.cabal` files).
+  - Data.Map.Struct
+  - Data.Char
+  - Data.Maybe
+  - System.IO
 - Briefly describe the structure of the code (what are the main components, the
   module dependency structure).
+  - Are structure does not currently follow our desired final result of following the MVC format. Currently we have one file for tests, one for the board, and one for the other functions. We will look to refine the structure as we progress.
 - Pose any questions that you may have about your project and/or request
   feedback on specific aspects of the project.
-
-Note: Be sure that all `.hs` source files and any supporting files (e.g.,
-`stack.yaml`, `package.yaml`/`<package_name>.cabal` files, data files, examples,
-...) have been committed and pushed.
