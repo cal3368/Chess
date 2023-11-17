@@ -1,10 +1,10 @@
-# Project Title
+# Chess
 
 Team members:
 
-- Name1
-- Name2
-- Name3
+- Jordan Chin
+- Badaruddin Shaik
+- Charlie Leyens
 
 ## Summary Description
 
