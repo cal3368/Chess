@@ -1,0 +1,42 @@
+Fair checkpoint.
+
+Reasonable start to implementation of project, but not a lot of code
+written thus far and significant functionality still to be
+implemented, especially for a four person team.
+
+Visualization of the board looks fine.  You might consider looking
+into a Haskell TUI library that would allow updating the board inplace
+(on the screen), rather than scrolling to a new baord print out.
+
+Why `data Square = Square Piece | Empty` rather than `Maybe Piece`?
+
+Code organization seems "backwards" in places.  Why are the
+definitions of `Color`, `Type`, and `Piece` in the `DrawBoard` module
+and not in the `Chess` module?  You should strive to separate the
+"model" from the "view", but in that architecture, the core data
+structures would be in the "model" and imported into the "view" for
+the purposes of display.
+
+There is certainly a lot of structure in the list used to initialize
+the board.  `Map.fromList` may well be the best function to create the
+`Map.Map`, but you could certainly more programmatically construct the
+list.  For example:
+
+    [((f,1), Square (Piece White Rook)) | f <- 'a'..'c']
+
+As for parsing the input, you could certainly use a `Parser a` to
+convert the input string to a final value, with something like:
+
+    promptForAndValidate :: String -> Parser a -> IO a
+    promptForAndValidate msg p = do ...
+
+Depending on the complexity of commands to be input, this may or may
+not be worthwhile.
+
+Look over the rubric for the final project writeup
+(https://www.cs.rit.edu/~mtf/teaching/20231/psh/project.html#final_project)
+and think about how the features of Haskell were used to good effect
+in the project.
+
+
+Score: 9/10
