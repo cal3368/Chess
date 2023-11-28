@@ -23,11 +23,11 @@ validateOwner (c, i) color board = case Map.lookup (c, i) board of
   Nothing -> False
   Just p -> color == getColor (getPiece p)
 
-checkInbounds :: Location -> Bool
-checkInbounds (c, i)
-  | i <= 0 || i > 8 = False
-  | (ord c - ord 'a') > 7 || (ord c - ord 'a') < 0 = False
-  | otherwise = True
+-- checkInbounds :: Location -> Bool
+-- checkInbounds (c, i)
+--   | i <= 0 || i > 8 = False
+--   | (ord c - ord 'a') > 7 || (ord c - ord 'a') < 0 = False
+--   | otherwise = True
 
 checkLegal :: Location -> Location -> Piece -> Bool
 checkLegal (c1, i1) (c2, i2) (Piece _ Knight)
@@ -91,6 +91,31 @@ getColor (Piece color _) = color
 
 getType :: Piece -> Type
 getType (Piece _ t) = t
+
+makeMove :: (Location, Location) -> Color -> Board -> Board
+makeMove (l1@(c1, i1), l2@(c2, i2)) color board
+  | not (validateOwner (c1, i1) color board) = board
+
+-- Not completed. Need to check validity
+
+{- Function to find the location of the opposite color King.
+Used for checking if a player is in check/checkate
+-}
+locateKing :: Color -> Map.Map Location Square -> Maybe Location
+locateKing White board =
+  case Map.toList board of
+    [] -> Nothing
+    ((key, value) : rest) ->
+      if value == Square (Piece Black King)
+        then Just key
+        else locateKing White (Map.fromList rest)
+locateKing Black board =
+  case Map.toList board of
+    [] -> Nothing
+    ((key, value) : rest) ->
+      if value == Square (Piece White King)
+        then Just key
+        else locateKing Black (Map.fromList rest)
 
 promptForAndValidate :: String -> IO (Location, Location)
 promptForAndValidate msg = do
