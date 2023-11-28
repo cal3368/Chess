@@ -7,7 +7,7 @@ import DrawBoard
     Color (..),
     Location,
     Piece (..),
-    Square (Square),
+    Square (Empty, Square),
     Type (..),
     drawBoard,
     newBoard,
@@ -101,7 +101,7 @@ makeMove (l1@(c1, i1), l2@(c2, i2)) color board
 {- Function to find the location of the opposite color King.
 Used for checking if a player is in check/checkate
 -}
-locateKing :: Color -> Map.Map Location Square -> Maybe Location
+locateKing :: Color -> Board -> Maybe Location
 locateKing White board =
   case Map.toList board of
     [] -> Nothing
@@ -116,6 +116,27 @@ locateKing Black board =
       if value == Square (Piece White King)
         then Just key
         else locateKing Black (Map.fromList rest)
+
+{- Function to check if a board is in check -}
+isCheck :: Board -> Color -> Bool
+isCheck board White = case locateKing Black board of
+  Nothing -> False
+  Just kingLocation -> case Map.toList board of
+    [] -> False
+    ((key, value) : rest) ->
+      ( if (value == Empty) || (getColor (getPiece value) == White)
+          then isCheck (Map.fromList rest) White
+          else checkLegal key kingLocation (getPiece value) || isCheck (Map.fromList rest) White
+      )
+isCheck board _ = case locateKing White board of
+  Nothing -> False
+  Just kingLocation -> case Map.toList board of
+    [] -> False
+    ((key, value) : rest) ->
+      ( if (value == Empty) || (getColor (getPiece value) == Black)
+          then isCheck (Map.fromList rest) Black
+          else checkLegal key kingLocation (getPiece value) || isCheck (Map.fromList rest) Black
+      )
 
 promptForAndValidate :: String -> IO (Location, Location)
 promptForAndValidate msg = do
