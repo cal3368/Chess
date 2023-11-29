@@ -1,6 +1,6 @@
 module Chess where
 
-import Data.Char (digitToInt, isAlpha, isDigit, ord)
+import Data.Char (chr, digitToInt, isAlpha, isDigit, ord)
 import Data.Map.Strict qualified as Map
 import DrawBoard
   ( Board,
@@ -126,7 +126,9 @@ isCheck board White = case locateKing Black board of
     ((key, value) : rest) ->
       ( if (value == Empty) || (getColor (getPiece value) == White)
           then isCheck (Map.fromList rest) White
-          else checkLegal key kingLocation (getPiece value) || isCheck (Map.fromList rest) White
+          else
+            (checkLegal key kingLocation (getPiece value) && isCheckAux key kingLocation (getPiece value) board)
+              || isCheck (Map.fromList rest) White
       )
 isCheck board _ = case locateKing White board of
   Nothing -> False
@@ -135,8 +137,54 @@ isCheck board _ = case locateKing White board of
     ((key, value) : rest) ->
       ( if (value == Empty) || (getColor (getPiece value) == Black)
           then isCheck (Map.fromList rest) Black
-          else checkLegal key kingLocation (getPiece value) || isCheck (Map.fromList rest) Black
+          else
+            (checkLegal key kingLocation (getPiece value) && isCheckAux key kingLocation (getPiece value) board)
+              || isCheck (Map.fromList rest) Black
       )
+
+isCheckAux :: Location -> Location -> Piece -> Board -> Bool
+isCheckAux (c1, i1) (c2, i2) (Piece White Pawn) _ = i2 - i1 == 1 && abs (ord c2 - ord c1) == 1
+isCheckAux (c1, i1) (c2, i2) (Piece Black Pawn) _ = i1 - i2 == 1 && abs (ord c2 - ord c1) == 1
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Rook) board = if i1 == i2 then checkBetweenCol l1 l2 board else checkBetweenRow l1 l2 board
+
+{- Function to check if there is an unblocked path between two locations in a row -}
+checkBetweenRow :: Location -> Location -> Board -> Bool
+checkBetweenRow (c1, i1) (c2, i2) board
+  | (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkBetweenRow (chr (ord c1 + 1), i1) (c2, i2) board
+  | (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkBetweenRow (c1, i1) (chr (ord c2 + 1), i1) board
+  | otherwise = True
+
+{- Function to check if there is an unblocked path between two locations in a column -}
+checkBetweenCol :: Location -> Location -> Board -> Bool
+checkBetweenCol (c1, i1) (c2, i2) board
+  | i2 - i1 > 1 = case Map.lookup (c1, i1 + 1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkBetweenCol (c1, i1 + 1) (c2, i2) board
+  | i1 - i2 > 1 = case Map.lookup (c1, i2 + 1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkBetweenRow (c1, i1) (c2, i2 + 1) board
+  | otherwise = True
+
+{- Function to check if there is an unblocked path between two location in a diagonal -}
+checkDiagonal :: Location -> Location -> Board -> Bool
+checkDiagonal (c1, i1) (c2, i2) board
+  | i2 - i1 > 1 && (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1 + 1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkDiagonal (chr (ord c1 + 1), i1 + 1) (c2, i2) board
+  | i1 - i2 > 1 && (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i2 + 1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkDiagonal (c1, i1) (chr (ord c2 + 1), i2 + 1) board
+  | i2 - i1 > 1 && (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i2 - 1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkDiagonal (c1, i1) (chr (ord c2 + 1), i2 - 1) board
+  | i1 - i2 > 1 && (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1 - 1) board of
+      Nothing -> True -- Not possible with current implementation
+      Just square -> (square == Empty) && checkDiagonal (chr (ord c1 + 1), i1 - 1) (c2, i2) board
+  | otherwise = True
 
 promptForAndValidate :: String -> IO (Location, Location)
 promptForAndValidate msg = do
