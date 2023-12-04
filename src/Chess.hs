@@ -145,7 +145,16 @@ isCheck board _ = case locateKing White board of
 isCheckAux :: Location -> Location -> Piece -> Board -> Bool
 isCheckAux (c1, i1) (c2, i2) (Piece White Pawn) _ = i2 - i1 == 1 && abs (ord c2 - ord c1) == 1
 isCheckAux (c1, i1) (c2, i2) (Piece Black Pawn) _ = i1 - i2 == 1 && abs (ord c2 - ord c1) == 1
-isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Rook) board = if i1 == i2 then checkBetweenCol l1 l2 board else checkBetweenRow l1 l2 board
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Rook) board =
+  if i1 == i2
+    then checkBetweenCol l1 l2 board
+    else checkBetweenRow l1 l2 board
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Bishop) board = checkDiagonal l1 l2 board
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Queen) board
+  | i1 == i2 = checkBetweenRow l1 l2 board
+  | c1 == c2 = checkBetweenCol l1 l2 board
+  | otherwise = checkDiagonal l1 l2 board
+isCheckAux _ _ _ _ = True
 
 {- Function to check if there is an unblocked path between two locations in a row -}
 checkBetweenRow :: Location -> Location -> Board -> Bool
