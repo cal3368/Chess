@@ -132,8 +132,8 @@ getColor (Piece color _) = color
 getType :: Piece -> Type
 getType (Piece _ t) = t
 
-move :: Location -> Location -> Piece -> Board -> Board
-move l1 l2 p b = mod_board
+makeMove :: Location -> Location -> Piece -> Board -> Board
+makeMove l1 l2 p b = mod_board
   where
     insertion = Map.insert l2 p b
     mod_board = Map.delete l1 b
@@ -313,9 +313,18 @@ play board p1 p2 1 = do
           putStrLn "Draw accepted. It's a draw!"
           return ()
     -- Possible add a pause game, save game, and restart game option
-    _ ->
-      -- make move
-      play board p1 p2 2
+    (l1, l2) ->
+      case Map.lookup l1 board of
+        Just piece ->
+          if checkMove l1 piece board l2
+            then play (makeMove l1 l2 piece board) p1 p2 2
+            else do
+              putStrLn "Illegal Move. Try again!"
+              play board p1 p2 1
+        Nothing -> do
+          putStrLn "Illegal Move. Try again!"
+          play board p1 p2 1
+-- make move
 play board p1 p2 _ = do
   putStrLn ""
   drawBoard board
@@ -325,9 +334,17 @@ play board p1 p2 _ = do
     (('q', 0), ('q', 0)) ->
       return ()
     -- Possible add a pause game, save game, and restart game option
-    _ ->
-      -- make move
-      play board p1 p2 1
+    (l1, l2) ->
+      case Map.lookup l1 board of
+        Just piece ->
+          if checkMove l1 piece board l2
+            then play (makeMove l1 l2 piece board) p1 p2 1
+            else do
+              putStrLn "Illegal Move. Try again!"
+              play board p1 p2 2
+        Nothing -> do
+          putStrLn "Illegal Move. Try again!"
+          play board p1 p2 2
 
 main :: IO ()
 main = do
