@@ -248,7 +248,7 @@ isCheckMate White b = case Map.toList b of
   ((key, value) : rest) ->
     if getColor value == Black
       then isCheckMate White (Map.fromList rest)
-      else any (True ==) (map (checkMove key value b) allLocations)
+      else any (checkMove key value b) allLocations
 
 promptForAndValidate :: String -> IO (Location, Location)
 promptForAndValidate msg = do
@@ -258,6 +258,8 @@ promptForAndValidate msg = do
     "quit" -> do
       putStrLn "Game is over"
       return (('q', 0), ('q', 0))
+    "draw" -> do
+      return (('x', 0), ('x', 0))
     [x1, y1, ' ', x2, y2] -> do
       ( if isAlpha x1
           && isAlpha x2
@@ -280,6 +282,19 @@ promptForAndValidate msg = do
   where
     invalid = "Invalid move. Try again."
 
+respondToDraw :: IO String
+respondToDraw = do
+  putStrLn "Do you accept the draw?"
+  response <- getLine
+  if response == "yes"
+    then return "yes"
+    else
+      if response == "no"
+        then return "no"
+        else do
+          putStrLn "Please respond with 'yes' or 'no'"
+          respondToDraw
+
 play :: Board -> String -> String -> Int -> IO ()
 play board p1 p2 1 = do
   putStrLn ""
@@ -289,6 +304,14 @@ play board p1 p2 1 = do
   case move of
     (('q', 0), ('q', 0)) ->
       return ()
+    (('x', 0), ('x', 0)) -> do
+      putStrLn (p1 ++ " offers a draw to " ++ p2)
+      response <- respondToDraw
+      if response == "no"
+        then play board p1 p2 1
+        else do
+          putStrLn "Draw accepted. It's a draw!"
+          return ()
     -- Possible add a pause game, save game, and restart game option
     _ ->
       -- make move
