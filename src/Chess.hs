@@ -28,6 +28,15 @@ validateOwner (c, i) color board = case Map.lookup (c, i) board of
 --   | (ord c - ord 'a') > 7 || (ord c - ord 'a') < 0 = False
 --   | otherwise = True
 
+checkMove :: Location -> Location -> Piece -> Board -> Bool
+checkMove source dest (Piece c t) b =
+  validateOwner source c b
+    && checkLegal source dest (Piece c t)
+    && not (isCheck mod_board c)
+  where
+    insertion = Map.insert dest (Piece c t) b
+    mod_board = Map.delete source insertion
+
 checkLegal :: Location -> Location -> Piece -> Bool
 checkLegal (c1, i1) (c2, i2) (Piece _ Knight)
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 2
@@ -114,82 +123,82 @@ locateKing Black board =
         else locateKing Black (Map.fromList rest)
 
 {- Function to check if a board is in check -}
--- isCheck :: Board -> Color -> Bool
--- isCheck board White = case locateKing Black board of
---   Nothing -> False
---   Just kingLocation -> case Map.toList board of
---     [] -> False
---     ((key, value) : rest) ->
---       ( if (value == Nothing) || (getColor (getPiece value) == White)
---           then isCheck (Map.fromList rest) White
---           else
---             (checkLegal key kingLocation (getPiece value) && isCheckAux key kingLocation (getPiece value) board)
---               || isCheck (Map.fromList rest) White
---       )
--- isCheck board _ = case locateKing White board of
---   Nothing -> False
---   Just kingLocation -> case Map.toList board of
---     [] -> False
---     ((key, value) : rest) ->
---       ( if (value == Empty) || (getColor (getPiece value) == Black)
---           then isCheck (Map.fromList rest) Black
---           else
---             (checkLegal key kingLocation (getPiece value) && isCheckAux key kingLocation (getPiece value) board)
---               || isCheck (Map.fromList rest) Black
---       )
+isCheck :: Board -> Color -> Bool
+isCheck board White = case locateKing Black board of
+  Nothing -> False
+  Just kingLocation -> case Map.toList board of
+    [] -> False
+    ((key, value) : rest) ->
+      ( if getColor value == White
+          then isCheck (Map.fromList rest) White
+          else
+            (checkLegal key kingLocation value && isCheckAux key kingLocation value board)
+              || isCheck (Map.fromList rest) White
+      )
+isCheck board _ = case locateKing White board of
+  Nothing -> False
+  Just kingLocation -> case Map.toList board of
+    [] -> False
+    ((key, value) : rest) ->
+      ( if getColor value == Black
+          then isCheck (Map.fromList rest) Black
+          else
+            (checkLegal key kingLocation value && isCheckAux key kingLocation value board)
+              || isCheck (Map.fromList rest) Black
+      )
 
--- isCheckAux :: Location -> Location -> Piece -> Board -> Bool
--- isCheckAux (c1, i1) (c2, i2) (Piece White Pawn) _ = i2 - i1 == 1 && abs (ord c2 - ord c1) == 1
--- isCheckAux (c1, i1) (c2, i2) (Piece Black Pawn) _ = i1 - i2 == 1 && abs (ord c2 - ord c1) == 1
--- isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Rook) board =
---   if i1 == i2
---     then checkBetweenCol l1 l2 board
---     else checkBetweenRow l1 l2 board
--- isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Bishop) board = checkDiagonal l1 l2 board
--- isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Queen) board
---   | i1 == i2 = checkBetweenRow l1 l2 board
---   | c1 == c2 = checkBetweenCol l1 l2 board
---   | otherwise = checkDiagonal l1 l2 board
--- isCheckAux _ _ _ _ = True
+isCheckAux :: Location -> Location -> Piece -> Board -> Bool
+isCheckAux (c1, i1) (c2, i2) (Piece White Pawn) _ = i2 - i1 == 1 && abs (ord c2 - ord c1) == 1
+isCheckAux (c1, i1) (c2, i2) (Piece Black Pawn) _ = i1 - i2 == 1 && abs (ord c2 - ord c1) == 1
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Rook) board =
+  if i1 == i2
+    then checkBetweenCol l1 l2 board
+    else checkBetweenRow l1 l2 board
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Bishop) board = checkDiagonal l1 l2 board
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Queen) board
+  | i1 == i2 = checkBetweenRow l1 l2 board
+  | c1 == c2 = checkBetweenCol l1 l2 board
+  | otherwise = checkDiagonal l1 l2 board
+isCheckAux _ _ _ _ = True
 
--- {- Function to check if there is an unblocked path between two locations in a row -}
--- checkBetweenRow :: Location -> Location -> Board -> Bool
--- checkBetweenRow (c1, i1) (c2, i2) board
---   | (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkBetweenRow (chr (ord c1 + 1), i1) (c2, i2) board
---   | (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkBetweenRow (c1, i1) (chr (ord c2 + 1), i1) board
---   | otherwise = True
+{- Function to check if there is an unblocked path between two locations in a row -}
+checkBetweenRow :: Location -> Location -> Board -> Bool
+checkBetweenRow (c1, i1) (c2, i2) board
+  | (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1) board of
+      Nothing -> checkBetweenRow (chr (ord c1 + 1), i1) (c2, i2) board
+      Just _ -> False
+  | (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i1) board of
+      Nothing -> checkBetweenRow (c1, i1) (chr (ord c2 + 1), i1) board
+      Just _ -> False
+  | otherwise = True
 
--- {- Function to check if there is an unblocked path between two locations in a column -}
--- checkBetweenCol :: Location -> Location -> Board -> Bool
--- checkBetweenCol (c1, i1) (c2, i2) board
---   | i2 - i1 > 1 = case Map.lookup (c1, i1 + 1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkBetweenCol (c1, i1 + 1) (c2, i2) board
---   | i1 - i2 > 1 = case Map.lookup (c1, i2 + 1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkBetweenRow (c1, i1) (c2, i2 + 1) board
---   | otherwise = True
+{- Function to check if there is an unblocked path between two locations in a column -}
+checkBetweenCol :: Location -> Location -> Board -> Bool
+checkBetweenCol (c1, i1) (c2, i2) board
+  | i2 - i1 > 1 = case Map.lookup (c1, i1 + 1) board of
+      Nothing -> checkBetweenCol (c1, i1 + 1) (c2, i2) board
+      Just _ -> False
+  | i1 - i2 > 1 = case Map.lookup (c1, i2 + 1) board of
+      Nothing -> checkBetweenRow (c1, i1) (c2, i2 + 1) board
+      Just _ -> False
+  | otherwise = True
 
--- {- Function to check if there is an unblocked path between two location in a diagonal -}
--- checkDiagonal :: Location -> Location -> Board -> Bool
--- checkDiagonal (c1, i1) (c2, i2) board
---   | i2 - i1 > 1 && (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1 + 1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkDiagonal (chr (ord c1 + 1), i1 + 1) (c2, i2) board
---   | i1 - i2 > 1 && (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i2 + 1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkDiagonal (c1, i1) (chr (ord c2 + 1), i2 + 1) board
---   | i2 - i1 > 1 && (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i2 - 1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkDiagonal (c1, i1) (chr (ord c2 + 1), i2 - 1) board
---   | i1 - i2 > 1 && (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1 - 1) board of
---       Nothing -> True -- Not possible with current implementation
---       Just square -> (square == Empty) && checkDiagonal (chr (ord c1 + 1), i1 - 1) (c2, i2) board
---   | otherwise = True
+{- Function to check if there is an unblocked path between two location in a diagonal -}
+checkDiagonal :: Location -> Location -> Board -> Bool
+checkDiagonal (c1, i1) (c2, i2) board
+  | i2 - i1 > 1 && (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1 + 1) board of
+      Nothing -> checkDiagonal (chr (ord c1 + 1), i1 + 1) (c2, i2) board
+      Just _ -> False
+  | i1 - i2 > 1 && (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i2 + 1) board of
+      Nothing -> checkDiagonal (c1, i1) (chr (ord c2 + 1), i2 + 1) board
+      Just _ -> False
+  | i2 - i1 > 1 && (ord c1 - ord c2) > 1 = case Map.lookup (chr (ord c2 + 1), i2 - 1) board of
+      Nothing -> checkDiagonal (c1, i1) (chr (ord c2 + 1), i2 - 1) board
+      Just _ -> False
+  | i1 - i2 > 1 && (ord c2 - ord c1) > 1 = case Map.lookup (chr (ord c1 + 1), i1 - 1) board of
+      Nothing -> checkDiagonal (chr (ord c1 + 1), i1 - 1) (c2, i2) board
+      Just _ -> False
+  | otherwise = True
 
 promptForAndValidate :: String -> IO (Location, Location)
 promptForAndValidate msg = do
