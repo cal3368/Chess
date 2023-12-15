@@ -12,6 +12,41 @@ import DrawBoard
     newBoard,
   )
 
+allLocations :: [Location]
+allLocations = [(char, num) | char <- ['a' .. 'h'], num <- [1 .. 8]]
+
+-- getMoves :: Location -> Piece -> [Location]
+-- getMoves (c1, i1) (Piece White Pawn) = [(c1, succ i1), (c1, i1 + 2), (chr (ord c1 + 1), succ i1), (chr (ord c1 - 1), succ i1)]
+-- getMoves (c1, i1) (Piece Black Pawn) = [(c1, pred i1), (c1, i1 - 2), (chr (ord c1 + 1), pred i1), (chr (ord c1 - 1), pred i1)]
+-- getMoves (c1, i1) (Piece _ King) =
+--   [ (c1, succ i1),
+--     (c1, pred i1),
+--     (chr (ord c1 + 1), i1),
+--     (chr (ord c1 - 1), i1),
+--     (chr (ord c1 + 1), pred i1),
+--     (chr (ord c1 + 1), succ i1),
+--     (chr (ord c1 - 1), pred i1),
+--     (chr (ord c1 - 1), succ i1)
+--   ]
+-- getMoves (c1, i1) (Piece _ Knight) =
+--   [ (chr (ord c1 + 1), i1 + 2),
+--     (chr (ord c1 + 1), i1 - 2),
+--     (chr (ord c1 - 1), i1 + 2),
+--     (chr (ord c1 - 1), i1 - 2),
+--     (chr (ord c1 + 2), i1 + 1),
+--     (chr (ord c1 + 2), i1 - 1),
+--     (chr (ord c1 - 2), i1 + 1),
+--     (chr (ord c1 - 2), i1 - 1)
+--   ]
+-- getMoves (c1, i1) (Piece _ Rook) = getHorizontal c1 i1 ++ getVertical c1 i1
+
+-- getHorizontal :: Char -> Int -> [Location]
+-- getHorizontal
+
+checkPromotion :: Location -> Color -> Bool
+checkPromotion (_, row) White = row == 8
+checkPromotion (_, row) Black = row == 1
+
 getName :: String -> IO String
 getName color = do
   putStrLn ("Enter name of " ++ color ++ ":")
@@ -22,11 +57,11 @@ validateOwner (c, i) color board = case Map.lookup (c, i) board of
   Nothing -> False
   Just p -> color == getColor p
 
--- checkInbounds :: Location -> Bool
--- checkInbounds (c, i)
---   | i <= 0 || i > 8 = False
---   | (ord c - ord 'a') > 7 || (ord c - ord 'a') < 0 = False
---   | otherwise = True
+checkInbounds :: Location -> Bool
+checkInbounds (c, i)
+  | i <= 0 || i > 8 = False
+  | (ord c - ord 'a') > 7 || (ord c - ord 'a') < 0 = False
+  | otherwise = True
 
 checkMove :: Location -> Location -> Piece -> Board -> Bool
 checkMove source dest (Piece c t) b =
@@ -97,9 +132,15 @@ getColor (Piece color _) = color
 getType :: Piece -> Type
 getType (Piece _ t) = t
 
-makeMove :: (Location, Location) -> Color -> Board -> Board
-makeMove (l1@(c1, i1), l2@(c2, i2)) color board
-  | not (validateOwner (c1, i1) color board) = board
+move :: Location -> Location -> Piece -> Board -> Board
+move l1 l2 p b = mod_board
+  where
+    insertion = Map.insert l2 p b
+    mod_board = Map.delete l1 b
+
+-- makeMove :: (Location, Location) -> Color -> Board -> Board
+-- makeMove (l1@(c1, i1), l2@(c2, i2)) color board
+--   | not (validateOwner (c1, i1) color board) = board
 
 -- Not completed. Need to check validity
 

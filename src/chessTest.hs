@@ -1,5 +1,5 @@
 import Chess (checkInbounds, checkLegal, validateOwner)
-import DrawBoard (Board, Color (Black, White), Piece (..), Square (Empty), Type (..), newBoard)
+import DrawBoard (Board, Color (Black, White), Piece (..), Type (..), newBoard)
 
 main :: IO ()
 main = do
