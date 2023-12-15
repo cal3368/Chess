@@ -63,8 +63,8 @@ checkInbounds (c, i)
   | (ord c - ord 'a') > 7 || (ord c - ord 'a') < 0 = False
   | otherwise = True
 
-checkMove :: Location -> Location -> Piece -> Board -> Bool
-checkMove source dest (Piece c t) b =
+checkMove :: Location -> Piece -> Board -> Location -> Bool
+checkMove source (Piece c t) b dest =
   validateOwner source c b
     && checkLegal source dest (Piece c t)
     && not (isCheck mod_board c)
@@ -240,6 +240,15 @@ checkDiagonal (c1, i1) (c2, i2) board
       Nothing -> checkDiagonal (chr (ord c1 + 1), i1 - 1) (c2, i2) board
       Just _ -> False
   | otherwise = True
+
+-- checkMove :: Location -> Location -> Piece -> Board -> Bool
+isCheckMate :: Color -> Board -> Bool
+isCheckMate White b = case Map.toList b of
+  [] -> False
+  ((key, value) : rest) ->
+    if getColor value == Black
+      then isCheckMate White (Map.fromList rest)
+      else any (True ==) (map (checkMove key value b) allLocations)
 
 promptForAndValidate :: String -> IO (Location, Location)
 promptForAndValidate msg = do
