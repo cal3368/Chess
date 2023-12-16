@@ -1,7 +1,7 @@
 module Chess where
 
 import Data.Char (chr, digitToInt, isAlpha, isDigit, ord)
-import qualified Data.Map.Strict as Map
+import  qualified Data.Map.Strict as Map
 import DrawBoard
   ( Board,
     Color (..),
