@@ -10,8 +10,8 @@ module DrawBoard
 where
 
 import Data.Char
-import Data.Map.Strict qualified as Map
-import Data.Maybe qualified
+import qualified Data.Map.Strict as Map
+import Data.Maybe
 import System.IO
 
 data Color = White | Black
