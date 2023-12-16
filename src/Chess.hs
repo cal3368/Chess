@@ -266,8 +266,8 @@ promptForAndValidate msg = do
     [x1, y1, ' ', x2, y2] -> do
       ( if isAlpha x1
           && isAlpha x2
-          && x1 < 'h'
-          && x2 < 'h'
+          && x1 <= 'h'
+          && x2 <= 'h'
           && isDigit y1
           && isDigit y2
           && digitToInt y1 > 0
