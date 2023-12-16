@@ -12,6 +12,9 @@ import DrawBoard
     newBoard,
   )
 
+castlingPossible :: Bool
+castlingPossible = True
+
 allLocations :: [Location]
 allLocations = [(char, num) | char <- ['a' .. 'h'], num <- [1 .. 8]]
 
@@ -85,7 +88,7 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Knight)
     c2i = ord c2 - ord 'a'
 checkLegal (c1, i1) (c2, i2) (Piece White Pawn)
   | i1 == 2 && c1 == c2 && (i2 - i1 == 2 || i2 - i1 == 1) = True
-  | c1 == c2 && (i2 - i1 == 2 || i2 - i1 == 1) = True
+  | c1 == c2 && i2 - i1 == 1 = True
   | abs (c2i - c1i) == 1 && (i2 - i1) == 1 = True
   | otherwise = False
   where
@@ -93,7 +96,7 @@ checkLegal (c1, i1) (c2, i2) (Piece White Pawn)
     c2i = ord c2 - ord 'a'
 checkLegal (c1, i1) (c2, i2) (Piece Black Pawn)
   | i1 == 7 && c1 == c2 && (i1 - i2 == 2 || i1 - i2 == 1) = True
-  | c1 == c2 && (i1 - i2 == 2 || i1 - i2 == 1) = True
+  | c1 == c2 && i1 - i2 == 1 = True
   | abs (c2i - c1i) == 1 && (i1 - i2) == 1 = True
   | otherwise = False
   where
@@ -136,7 +139,7 @@ makeMove :: Location -> Location -> Piece -> Board -> Board
 makeMove l1 l2 p b = mod_board
   where
     insertion = Map.insert l2 p b
-    mod_board = Map.delete l1 b
+    mod_board = Map.delete l1 insertion
 
 -- makeMove :: (Location, Location) -> Color -> Board -> Board
 -- makeMove (l1@(c1, i1), l2@(c2, i2)) color board
