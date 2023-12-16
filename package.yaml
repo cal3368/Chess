@@ -34,6 +34,8 @@ ghc-options:
 
 library:
   source-dirs: src
+  other-modules:
+    - DrawBoard
 
 executables:
   chess-exe:
