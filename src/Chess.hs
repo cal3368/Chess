@@ -2,7 +2,8 @@ module Chess where
 
 import Data.Char (chr, digitToInt, isAlpha, isDigit, ord)
 import qualified Data.Map.Strict as Map
--- import Data.Time.Clock
+import Data.Maybe (Maybe (Nothing), isNothing)
+import Data.Time.Clock
 import DrawBoard
   ( Board,
     Color (..),
@@ -12,6 +13,7 @@ import DrawBoard
     drawBoard,
     newBoard,
   )
+import Text.Read (readMaybe)
 
 allLocations :: [Location]
 allLocations = [(char, num) | char <- ['a' .. 'h'], num <- [1 .. 8]]
@@ -84,21 +86,21 @@ checkCastlingMoved (c1, _) (c2, _) (Piece Black _ True) board =
       Just (Piece _ tr br) -> tr == Rook && br
 
 -- Check if the adjascent squares of castle and rook are under check
-checkCastlingCheck :: Location -> Location -> Color -> Board -> Bool
-checkCastlingCheck (c1, i1) (c2, i2) White board = case Map.toList board of
+checkCastlingCheck :: Location -> Location -> Color -> Board -> Board -> Bool
+checkCastlingCheck (c1, i1) (c2, i2) White board1 board2 = case Map.toList board1 of
   [] -> False
   ((key, value) : rest) ->
     if getColor value == White
-      then checkCastlingCheck (c1, i1) (c2, i2) White (Map.fromList rest)
-      else not (any (checkMove Black key value board) checkedSq)
+      then checkCastlingCheck (c1, i1) (c2, i2) White (Map.fromList rest) board2
+      else not (any (checkMove Black key value board2) checkedSq)
     where
       checkedSq = if c2 > c1 then [('f', 1), ('g', 1)] else [('d', 1), ('c', 1)]
-checkCastlingCheck (c1, i1) (c2, i2) Black board = case Map.toList board of
+checkCastlingCheck (c1, i1) (c2, i2) Black board1 board2 = case Map.toList board1 of
   [] -> False
   ((key, value) : rest) ->
     if getColor value == Black
-      then checkCastlingCheck (c1, i1) (c2, i2) Black (Map.fromList rest)
-      else not (any (checkMove White key value board) checkedSq)
+      then checkCastlingCheck (c1, i1) (c2, i2) Black (Map.fromList rest) board2
+      else not (any (checkMove White key value board2) checkedSq)
     where
       checkedSq = if c2 > c1 then [('f', 8), ('g', 8)] else [('d', 8), ('c', 8)]
 
@@ -114,7 +116,7 @@ checkCastling :: Location -> Location -> Piece -> Board -> Bool
 checkCastling (c1, i1) (c2, i2) (Piece c t b) board =
   checkCastlingMoved (c1, i1) (c2, i2) (Piece c t b) board
     && not (isCheck board board checkColor)
-    && checkCastlingCheck (c1, i1) (c2, i2) c board
+    && checkCastlingCheck (c1, i1) (c2, i2) c board board
     && checkCastlingAdjSq board c checkRook
   where
     checkRook = c2 < c1
@@ -198,19 +200,19 @@ checkLegal (c1, i1) (c2, i2) (Piece _ King False) _
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
 checkLegal l1@(c1, i1) l2@(c2, i2) (Piece White King True) b
+  | c2 == 'g' || c2 == 'c' && checkCastling l1 l2 (Piece White King True) b = True
   | abs (i2 - i1) == 1 && c2 == c1 = True
   | abs (c2i - c1i) == 1 && i2 == i1 = True
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 1 = True
-  | c2 == 'g' || c2 == 'c' && checkCastling l1 l2 (Piece White King True) b = True
   | otherwise = False
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
 checkLegal l1@(c1, i1) l2@(c2, i2) (Piece Black King True) b
+  | c2 == 'g' || c2 == 'c' && checkCastling l1 l2 (Piece Black King True) b = True
   | abs (i2 - i1) == 1 && c2 == c1 = True
   | abs (c2i - c1i) == 1 && i2 == i1 = True
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 1 = True
-  | c2 == 'g' || c2 == 'c' && checkCastling l1 l2 (Piece Black King True) b = True
   | otherwise = False
   where
     c1i = ord c1 - ord 'a'
@@ -518,6 +520,128 @@ play board p1 p2 _ = do
               putStrLn "Illegal Move. Try again!"
               play board p1 p2 2
 
+playWithTimer :: Board -> String -> String -> Int -> Int -> Int -> IO ()
+playWithTimer board p1 p2 1 time1 time2 = do
+  putStrLn ""
+  drawBoard board
+  putStrLn ""
+  putStrLn (p1 ++ " has " + show time1 + " seconds left")
+  start <- getCurrentTime
+  if not (isCheck board board White) && isStalemate White board board
+    then do
+      putStrLn (p1 ++ " is not in check and cannot make a move. It's a stalemate!")
+      return ()
+    else do
+      move <- promptForAndValidate (p1 ++ " make your move:")
+      case move of
+        (('q', 0), ('q', 0)) ->
+          return ()
+        (('z', 0), ('z', 0)) -> do
+          displayInstructions
+          end <- getCurrentTime
+          diff <- diffUTCTime end start
+          playWithTimer board p1 p2 1 (time1 - diff) time2
+        (('x', 0), ('x', 0)) -> do
+          putStrLn (p1 ++ " offers a draw to " ++ p2)
+          response <- respondToDraw
+          if response == "no"
+            then do
+              end <- getCurrentTime
+              diff <- diffUTCTime end start
+              playWithTimer board p1 p2 1 (time1 - diff) time2
+            else do
+              putStrLn "Draw accepted. It's a draw!"
+              return ()
+        (l1, l2) ->
+          case Map.lookup l1 board of
+            Just piece ->
+              if checkMove White l1 piece board l2
+                then
+                  let newBoard1 = makeMove l1 l2 piece board
+                   in if isCheck newBoard newBoard1 White && not (isCheckMate Black newBoard1 newBoard1)
+                        then do
+                          drawBoard newBoard1
+                          putStrLn ("Checkmate! " ++ p1 ++ " wins!")
+                          return ()
+                        else do
+                          end <- getCurrentTime
+                          diff <- diffUTCTime end start
+                          if isCheck newBoard newBoard1 White
+                            then do
+                              putStrLn "Check"
+                              play newBoard1 p1 p2 2 (time1 - diff) time2
+                            else playWithTimer newBoard1 p1 p2 2 (time1 - diff) time2
+                else do
+                  putStrLn "Illegal Move. Try again!"
+                  end <- getCurrentTime
+                  diff <- diffUTCTime end start
+                  play board p1 p2 1 (time1 - diff) time2
+            Nothing -> do
+              putStrLn "Illegal Move. Try again!"
+              end <- getCurrentTime
+              diff <- diffUTCTime end start
+              play board p1 p2 1 (time1 - diff) time2
+playWithTimer board p1 p2 _ time1 time2 = do
+  putStrLn ""
+  drawBoard board
+  putStrLn ""
+  putStrLn (p2 ++ " has " + show time2 + " seconds left")
+  start <- getCurrentTime
+  if not (isCheck board board Black) && isStalemate Black board board
+    then do
+      putStrLn (p2 ++ " is not in check and cannot make a move. It's a stalemate!")
+      return ()
+    else do
+      move <- promptForAndValidate (p2 ++ " make your move:")
+      case move of
+        (('q', 0), ('q', 0)) ->
+          return ()
+        (('z', 0), ('z', 0)) -> do
+          displayInstructions
+          end <- getCurrentTime
+          diff <- diffUTCTime end start
+          playWithTimer board p1 p2 2 time1 (time2 - diff)
+        (('x', 0), ('x', 0)) -> do
+          putStrLn (p2 ++ " offers a draw to " ++ p1)
+          response <- respondToDraw
+          if response == "no"
+            then do
+              end <- getCurrentTime
+              diff <- diffUTCTime end start
+              playWithTimer board p1 p2 2 time1 (time2 - diff)
+            else do
+              putStrLn "Draw accepted. It's a draw!"
+              return ()
+        (l1, l2) ->
+          case Map.lookup l1 board of
+            Just piece ->
+              if checkMove Black l1 piece board l2
+                then
+                  let newBoard1 = makeMove l1 l2 piece board
+                   in if isCheck newBoard1 newBoard1 Black && not (isCheckMate White newBoard1 newBoard1)
+                        then do
+                          drawBoard newBoard1
+                          putStrLn ("Checkmate! " ++ p2 ++ " wins!")
+                          return ()
+                        else do
+                          end <- getCurrentTime
+                          diff <- diffUTCTime end start
+                          if isCheck newBoard1 newBoard1 Black
+                            then do
+                              putStrLn "Check"
+                              playWithTimer board p1 p2 2 time1 (time2 - diff)
+                            else playWithTimer board p1 p2 2 time1 (time2 - diff)
+                else do
+                  putStrLn "Illegal Move. Try again!"
+                  end <- getCurrentTime
+                  diff <- diffUTCTime end start
+                  playWithTimer board p1 p2 2 time1 (time2 - diff)
+            Nothing -> do
+              putStrLn "Illegal Move. Try again!"
+              end <- getCurrentTime
+              diff <- diffUTCTime end start
+              playWithTimer board p1 p2 2 time1 (time2 - diff)
+
 displayInstructions :: IO ()
 displayInstructions = do
   putStrLn "Played with two users"
@@ -525,16 +649,22 @@ displayInstructions = do
   putStrLn "Moves are made using the form 'xi xi' where x can be any character between a and h and i can be any integer from 1 to 8"
   putStrLn ""
 
+getTime :: IO (Maybe Int)
+getTime = do
+  putStrLn "Please Enter Timer Amount('none' if no timer wanted): "
+  time <- getLine
+  case readMaybe time of
+    Nothing -> return Nothing
+    Just i -> return i
+
 main :: IO ()
 main = do
   putStrLn "Chess\n"
   displayInstructions
+  let board = newBoard
   player1 <- getName "white"
   player2 <- getName "black"
-  -- let player1Timer = 5400
-  -- let player2Timer = 5400
-  let board = newBoard
-  play board player1 player2 1
-
-tb :: Board
-tb = Map.fromList [(('e', 1), Piece White King True), (('a', 1), Piece White Rook True), (('h', 1), Piece White Rook True), (('e', 2), Piece Black Pawn True)]
+  timer <- getTime
+  case timer of
+    Nothing -> play board player1 player2 1
+    Just i -> playWithTimer board player1 player2 1 i i
