@@ -2,7 +2,7 @@ module Chess where
 
 import Data.Char (chr, digitToInt, isAlpha, isDigit, ord)
 import qualified Data.Map.Strict as Map
--- import Data.Time.Clock
+import Data.Time.Clock
 import DrawBoard
   ( Board,
     Color (..),
@@ -63,61 +63,21 @@ checkMove White source piece b dest =
     insertion = Map.insert dest piece b
     mod_board = Map.delete source insertion
 
--- Checks if the rook and king have not moved
-checkCastlingMoved :: Location -> Location -> Piece -> Board -> Bool
-checkCastlingMoved (_, _) (_, _) (Piece _ _ False) _ = False
-checkCastlingMoved (c1, _) (c2, _) (Piece White _ True) board =
-  if ord c2 > ord c1
-    then case Map.lookup ('h', 1) board of
-      Nothing -> False
-      Just (Piece _ tr br) -> tr == Rook && br
-    else case Map.lookup ('a', 1) board of
-      Nothing -> False
-      Just (Piece _ tr br) -> tr == Rook && br
-checkCastlingMoved (c1, _) (c2, _) (Piece Black _ True) board =
-  if c2 > c1
-    then case Map.lookup ('h', 8) board of
-      Nothing -> False
-      Just (Piece _ tr br) -> tr == Rook && br
-    else case Map.lookup ('a', 8) board of
-      Nothing -> False
-      Just (Piece _ tr br) -> tr == Rook && br
-
--- Check if the adjascent squares of castle and rook are under check
-checkCastlingCheck :: Location -> Location -> Color -> Board -> Bool
-checkCastlingCheck (c1, i1) (c2, i2) White board = case Map.toList board of
-  [] -> False
-  ((key, value) : rest) ->
-    if getColor value == White
-      then checkCastlingCheck (c1, i1) (c2, i2) White (Map.fromList rest)
-      else any (checkMove White key value board) checkedSq
-    where
-      checkedSq = if c2 > c1 then [('f', 1), ('g', 1)] else [('d', 1), ('c', 1)]
-checkCastlingCheck (c1, i1) (c2, i2) Black board = case Map.toList board of
-  [] -> False
-  ((key, value) : rest) ->
-    if getColor value == Black
-      then checkCastlingCheck (c1, i1) (c2, i2) Black (Map.fromList rest)
-      else any (checkMove Black key value board) checkedSq
-    where
-      checkedSq = if c2 > c1 then [('f', 8), ('g', 8)] else [('d', 8), ('c', 8)]
-
--- Checks there are no pieces between king and rook
-checkCastlingAdjSq :: Board -> Color -> Bool -> Bool
-checkCastlingAdjSq board White True = checkBetweenRow ('e', 1) ('a', 1) board
-checkCastlingAdjSq board White False = checkBetweenRow ('e', 1) ('h', 1) board
-checkCastlingAdjSq board Black True = checkBetweenRow ('e', 8) ('a', 8) board
-checkCastlingAdjSq board Black False = checkBetweenRow ('e', 8) ('h', 8) board
-
--- Check castling condition
-checkCastling :: Location -> Location -> Piece -> Board -> Bool
-checkCastling (c1, i1) (c2, i2) (Piece c t b) board =
-  checkCastlingMoved (c1, i1) (c2, i2) (Piece c t b) board
-    && isCheck board board c
-    && checkCastlingCheck (c1, i1) (c2, i2) c board
-    && checkCastlingAdjSq board c checkRook
-  where
-    checkRook = c2 < c1
+-- checkMove :: Location -> Piece -> Board -> Location -> Bool
+-- checkMove source (Piece Black t) b dest =
+--   validateOwner source Black b
+--     && checkLegal source dest (Piece Black t) b
+--     && not (isCheck mod_board mod_board White)
+--   where
+--     insertion = Map.insert dest (Piece Black t) b
+--     mod_board = Map.delete source insertion
+-- checkMove source (Piece White t) b dest =
+--   validateOwner source White b
+--     && checkLegal source dest (Piece White t) b
+--     && not (isCheck mod_board mod_board Black)
+--   where
+--     insertion = Map.insert dest (Piece White t) b
+--     mod_board = Map.delete source insertion
 
 checkDirection :: Location -> Location -> Board -> Bool
 checkDirection (c1, i1) (c2, i2) board
@@ -126,7 +86,7 @@ checkDirection (c1, i1) (c2, i2) board
   | otherwise = checkBetweenRow (c1, i1) (c2, i2) board
 
 checkLegal :: Location -> Location -> Piece -> Board -> Bool
-checkLegal (c1, i1) (c2, i2) (Piece _ Knight _) _
+checkLegal (c1, i1) (c2, i2) (Piece _ Knight) _
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 2
       || abs (c2i - c1i) == 2 && abs (i2 - i1) == 1
       || abs (c1i - c2i) == 1 && abs (i1 - i2) == 2
@@ -136,7 +96,7 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Knight _) _
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
-checkLegal (c1, i1) (c2, i2) (Piece White Pawn _) board
+checkLegal (c1, i1) (c2, i2) (Piece White Pawn) board
   | i1 == 2 && c1 == c2 && (i2 - i1 == 2 || i2 - i1 == 1) && not (checkBetweenCol (c1, i1) (c2, i2) board) = case Map.lookup (c2, i2) board of
       Just _ -> False
       Nothing -> True
@@ -147,13 +107,13 @@ checkLegal (c1, i1) (c2, i2) (Piece White Pawn _) board
       Just _ -> False
       Nothing -> True
   | abs (c2i - c1i) == 1 && (i2 - i1) == 1 = case Map.lookup (c2, i2) board of
-      Just (Piece Black _ _) -> True
+      Just (Piece Black _) -> True
       _ -> False
   | otherwise = False
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
-checkLegal (c1, i1) (c2, i2) (Piece Black Pawn _) board
+checkLegal (c1, i1) (c2, i2) (Piece Black Pawn) board
   | i1 == 7 && c1 == c2 && (i1 - i2 == 2 || i1 - i2 == 1) && not (checkBetweenCol (c1, i1) (c2, i2) board) = case Map.lookup (c2, i2) board of
       Just _ -> False
       Nothing -> True
@@ -164,13 +124,13 @@ checkLegal (c1, i1) (c2, i2) (Piece Black Pawn _) board
       Just _ -> False
       Nothing -> True
   | abs (c2i - c1i) == 1 && (i1 - i2) == 1 = case Map.lookup (c2, i2) board of
-      Just (Piece White _ _) -> True
+      Just (Piece White _) -> True
       _ -> False
   | otherwise = False
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
-checkLegal (c1, i1) (c2, i2) (Piece _ King _) _
+checkLegal (c1, i1) (c2, i2) (Piece _ King) _
   | abs (i2 - i1) == 1 && c2 == c1 = True
   | abs (c2i - c1i) == 1 && i2 == i1 = True
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 1 = True
@@ -178,7 +138,7 @@ checkLegal (c1, i1) (c2, i2) (Piece _ King _) _
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
-checkLegal (c1, i1) (c2, i2) (Piece _ Queen _) board
+checkLegal (c1, i1) (c2, i2) (Piece _ Queen) board
   | c1 == c2 && checkBetweenCol (c1, i1) (c2, i2) board = True
   | i1 == i2 && checkBetweenRow (c1, i1) (c2, i2) board = True
   | abs (i2 - i1) == abs (c2i - c1i) && checkDiagonal (c1, i1) (c2, i2) board = True
@@ -186,14 +146,14 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Queen _) board
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
-checkLegal (c1, i1) (c2, i2) (Piece _ Rook _) board
+checkLegal (c1, i1) (c2, i2) (Piece _ Rook) board
   | c1 == c2 && checkBetweenCol (c1, i1) (c2, i2) board = True
   | i1 == i2 && checkBetweenRow (c1, i1) (c2, i2) board = True
   | otherwise = False
--- where
---   c1i = ord c1 - ord 'a'
---   c2i = ord c2 - ord 'a'
-checkLegal (c1, i1) (c2, i2) (Piece _ Bishop _) board
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
+checkLegal (c1, i1) (c2, i2) (Piece _ Bishop) board
   | abs (i2 - i1) == abs (c2i - c1i) && checkDiagonal (c1, i1) (c2, i2) board = True
   | otherwise = False
   where
@@ -201,16 +161,22 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Bishop _) board
     c2i = ord c2 - ord 'a'
 
 getColor :: Piece -> Color
-getColor (Piece color _ _) = color
+getColor (Piece color _) = color
 
 getType :: Piece -> Type
-getType (Piece _ t _) = t
+getType (Piece _ t) = t
 
 makeMove :: Location -> Location -> Piece -> Board -> Board
 makeMove l1 l2 p b = mod_board
   where
     insertion = Map.insert l2 p b
     mod_board = Map.delete l1 insertion
+
+-- makeMove :: (Location, Location) -> Color -> Board -> Board
+-- makeMove (l1@(c1, i1), l2@(c2, i2)) color board
+--   | not (validateOwner (c1, i1) color board) = board
+
+-- Not completed. Need to check validity
 
 {- Function to find the location of the opposite color King.
 Used for checking if a player is in check/checkate
@@ -220,14 +186,14 @@ locateKing White board =
   case Map.toList board of
     [] -> Nothing
     ((key, value) : rest) ->
-      if value == Piece Black King True || value == Piece Black King False
+      if value == Piece Black King
         then Just key
         else locateKing White (Map.fromList rest)
 locateKing Black board =
   case Map.toList board of
     [] -> Nothing
     ((key, value) : rest) ->
-      if value == Piece White King True || value == Piece White King False
+      if value == Piece White King
         then Just key
         else locateKing Black (Map.fromList rest)
 
@@ -257,14 +223,14 @@ isCheck board1 board2 _ = case locateKing Black board1 of
       )
 
 isCheckAux :: Location -> Location -> Piece -> Board -> Bool
-isCheckAux (c1, i1) (c2, i2) (Piece White Pawn _) _ = i2 - i1 == 1 && abs (ord c2 - ord c1) == 1
-isCheckAux (c1, i1) (c2, i2) (Piece Black Pawn _) _ = i1 - i2 == 1 && abs (ord c2 - ord c1) == 1
-isCheckAux l1@(_, i1) l2@(_, i2) (Piece _ Rook _) board =
+isCheckAux (c1, i1) (c2, i2) (Piece White Pawn) _ = i2 - i1 == 1 && abs (ord c2 - ord c1) == 1
+isCheckAux (c1, i1) (c2, i2) (Piece Black Pawn) _ = i1 - i2 == 1 && abs (ord c2 - ord c1) == 1
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Rook) board =
   if i1 == i2
     then checkBetweenCol l1 l2 board
     else checkBetweenRow l1 l2 board
-isCheckAux l1@(_, _) l2@(_, _) (Piece _ Bishop _) board = checkDiagonal l1 l2 board
-isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Queen _) board
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Bishop) board = checkDiagonal l1 l2 board
+isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Queen) board
   | i1 == i2 = checkBetweenRow l1 l2 board
   | c1 == c2 = checkBetweenCol l1 l2 board
   | otherwise = checkDiagonal l1 l2 board
@@ -408,18 +374,18 @@ play board p1 p2 1 = do
             Just piece ->
               if checkMove White l1 piece board l2
                 then
-                  let newBoard1 = makeMove l1 l2 piece board
-                   in if isCheck newBoard newBoard1 White && not (isCheckMate Black newBoard1 newBoard1)
+                  let newBoard = makeMove l1 l2 piece board
+                   in if isCheck newBoard newBoard White && (not (isCheckMate Black newBoard newBoard))
                         then do
-                          drawBoard newBoard1
+                          drawBoard newBoard
                           putStrLn ("Checkmate! " ++ p1 ++ " wins!")
                           return ()
                         else
-                          if isCheck newBoard newBoard1 White
+                          if isCheck newBoard newBoard White
                             then do
                               putStrLn "Check"
-                              play newBoard1 p1 p2 2
-                            else play newBoard1 p1 p2 2
+                              play newBoard p1 p2 2
+                            else play newBoard p1 p2 2
                 else do
                   putStrLn "Illegal Move. Try again!"
                   play board p1 p2 1
@@ -455,18 +421,18 @@ play board p1 p2 _ = do
             Just piece ->
               if checkMove Black l1 piece board l2
                 then
-                  let newBoard1 = makeMove l1 l2 piece board
-                   in if isCheck newBoard1 newBoard1 Black && not (isCheckMate White newBoard1 newBoard1)
+                  let newBoard = makeMove l1 l2 piece board
+                   in if isCheck newBoard newBoard Black && (not (isCheckMate White newBoard newBoard))
                         then do
-                          drawBoard newBoard1
+                          drawBoard newBoard
                           putStrLn ("Checkmate! " ++ p2 ++ " wins!")
                           return ()
                         else
-                          if isCheck newBoard1 newBoard1 Black
+                          if isCheck newBoard newBoard Black
                             then do
                               putStrLn "Check"
-                              play newBoard1 p1 p2 1
-                            else play newBoard1 p1 p2 1
+                              play newBoard p1 p2 1
+                            else play newBoard p1 p2 1
                 else do
                   putStrLn "Illegal Move. Try again!"
                   play board p1 p2 2
@@ -487,7 +453,7 @@ main = do
   displayInstructions
   player1 <- getName "white"
   player2 <- getName "black"
-  -- let player1Timer = 5400
-  -- let player2Timer = 5400
+  let player1Timer = 5400
+  let player2Timer = 5400
   let board = newBoard
   play board player1 player2 1

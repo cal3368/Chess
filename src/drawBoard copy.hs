@@ -9,36 +9,38 @@ module DrawBoard
   )
 where
 
--- import Brick (Padding (Max, Pad), Widget, hLimit, padLeft, padRight, simpleMain, str, vBox, vLimit, withBorderStyle)
--- import Brick.Widgets.Border qualified as B
--- import Brick.Widgets.Border.Style qualified as BS
--- import Brick.Widgets.Center qualified as C
--- import Brick.Widgets.Core
+import Brick (Padding (Max, Pad), Widget, hLimit, padLeft, padRight, simpleMain, str, vBox, vLimit, withBorderStyle)
+import Brick.Widgets.Border qualified as B
+import Brick.Widgets.Border.Style qualified as BS
+import Brick.Widgets.Center qualified as C
+import Brick.Widgets.Core
 import Data.Char
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
+import Data.Maybe
+import System.IO
 
 data Color = White | Black
   deriving (Eq, Enum, Bounded, Read, Show)
 
-data Type = Pawn | Knight | Bishop | Queen | King | Rook
+data Type = Pawn | Rook | Knight | Bishop | Queen | King
   deriving (Eq, Enum, Bounded, Read, Show)
 
-data Piece = Piece Color Type Bool
+data Piece = Piece Color Type
   deriving (Eq)
 
 instance Show Piece where
-  show (Piece White Pawn _) = "♙"
-  show (Piece White Rook _) = "♖"
-  show (Piece White Knight _) = "♘"
-  show (Piece White Bishop _) = "♗"
-  show (Piece White Queen _) = "♕"
-  show (Piece White King _) = "♔"
-  show (Piece Black Pawn _) = "♟"
-  show (Piece Black Rook _) = "♜"
-  show (Piece Black Knight _) = "♞"
-  show (Piece Black Bishop _) = "♝"
-  show (Piece Black Queen _) = "♛"
-  show (Piece Black King _) = "♚"
+  show (Piece White Pawn) = "♙"
+  show (Piece White Rook) = "♖"
+  show (Piece White Knight) = "♘"
+  show (Piece White Bishop) = "♗"
+  show (Piece White Queen) = "♕"
+  show (Piece White King) = "♔"
+  show (Piece Black Pawn) = "♟"
+  show (Piece Black Rook) = "♜"
+  show (Piece Black Knight) = "♞"
+  show (Piece Black Bishop) = "♝"
+  show (Piece Black Queen) = "♛"
+  show (Piece Black King) = "♚"
 
 type Location = (Char, Int)
 
@@ -47,38 +49,38 @@ type Board = Map.Map Location Piece
 newBoard :: Board
 newBoard =
   Map.fromList
-    [ (('a', 1), Piece White Rook True),
-      (('b', 1), Piece White Knight True),
-      (('c', 1), Piece White Bishop True),
-      (('d', 1), Piece White Queen True),
-      (('e', 1), Piece White King True),
-      (('f', 1), Piece White Bishop True),
-      (('g', 1), Piece White Knight True),
-      (('h', 1), Piece White Rook True),
-      (('a', 2), Piece White Pawn True),
-      (('b', 2), Piece White Pawn True),
-      (('c', 2), Piece White Pawn True),
-      (('d', 2), Piece White Pawn True),
-      (('e', 2), Piece White Pawn True),
-      (('f', 2), Piece White Pawn True),
-      (('g', 2), Piece White Pawn True),
-      (('h', 2), Piece White Pawn True),
-      (('a', 8), Piece Black Rook True),
-      (('b', 8), Piece Black Knight True),
-      (('c', 8), Piece Black Bishop True),
-      (('d', 8), Piece Black Queen True),
-      (('e', 8), Piece White King True),
-      (('f', 8), Piece Black Bishop True),
-      (('g', 8), Piece Black Knight True),
-      (('h', 8), Piece Black Rook True),
-      (('a', 7), Piece Black Pawn True),
-      (('b', 7), Piece Black Pawn True),
-      (('c', 7), Piece Black Pawn True),
-      (('d', 7), Piece Black Pawn True),
-      (('e', 7), Piece Black Pawn True),
-      (('f', 7), Piece Black Pawn True),
-      (('g', 7), Piece Black Pawn True),
-      (('h', 7), Piece Black Pawn True)
+    [ (('a', 1), Piece White Rook),
+      (('b', 1), Piece White Knight),
+      (('c', 1), Piece White Bishop),
+      (('d', 1), Piece White Queen),
+      (('e', 1), Piece White King),
+      (('f', 1), Piece White Bishop),
+      (('g', 1), Piece White Knight),
+      (('h', 1), Piece White Rook),
+      (('a', 2), Piece White Pawn),
+      (('b', 2), Piece White Pawn),
+      (('c', 2), Piece White Pawn),
+      (('d', 2), Piece White Pawn),
+      (('e', 2), Piece White Pawn),
+      (('f', 2), Piece White Pawn),
+      (('g', 2), Piece White Pawn),
+      (('h', 2), Piece White Pawn),
+      (('a', 8), Piece Black Rook),
+      (('b', 8), Piece Black Knight),
+      (('c', 8), Piece Black Bishop),
+      (('d', 8), Piece Black Queen),
+      (('e', 8), Piece Black King),
+      (('f', 8), Piece Black Bishop),
+      (('g', 8), Piece Black Knight),
+      (('h', 8), Piece Black Rook),
+      (('a', 7), Piece Black Pawn),
+      (('b', 7), Piece Black Pawn),
+      (('c', 7), Piece Black Pawn),
+      (('d', 7), Piece Black Pawn),
+      (('e', 7), Piece Black Pawn),
+      (('f', 7), Piece Black Pawn),
+      (('g', 7), Piece Black Pawn),
+      (('h', 7), Piece Black Pawn)
     ]
 
 getSquare :: Board -> Location -> Maybe Piece
