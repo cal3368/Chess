@@ -1,9 +1,11 @@
-module Chess where
+module Chess
+  ( main,
+  )
+where
 
 import Data.Char (chr, digitToInt, isAlpha, isDigit, ord)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (Maybe (Nothing), isNothing)
-import Data.Time.Clock
+-- import Data.Time.Clock.System
 import DrawBoard
   ( Board,
     Color (..),
@@ -18,14 +20,9 @@ import Text.Read (readMaybe)
 allLocations :: [Location]
 allLocations = [(char, num) | char <- ['a' .. 'h'], num <- [1 .. 8]]
 
-checkPromotion :: Location -> Color -> Bool
-checkPromotion (_, row) White = row == 8
-checkPromotion (_, row) Black = row == 1
-
-getName :: String -> IO String
-getName color = do
-  putStrLn ("Enter name of " ++ color ++ ":")
-  getLine
+-- checkPromotion :: Location -> Color -> Bool
+-- checkPromotion (_, row) White = row == 8
+-- checkPromotion (_, row) Black = row == 1
 
 validateOwner :: Location -> Color -> Board -> Bool
 validateOwner (c, i) color board = case Map.lookup (c, i) board of
@@ -239,8 +236,8 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Bishop _) board
 getColor :: Piece -> Color
 getColor (Piece color _ _) = color
 
-getType :: Piece -> Type
-getType (Piece _ t _) = t
+-- getType :: Piece -> Type
+-- getType (Piece _ t _) = t
 
 promotePawn :: Color -> Location -> Location -> Board -> Board
 promotePawn White l1 l2 b = Map.insert l2 (Piece White Queen True) (Map.delete l1 b)
@@ -411,6 +408,11 @@ promptForAndValidate msg = do
   where
     invalid = "Invalid move. Try again."
 
+getName :: String -> IO String
+getName color = do
+  putStrLn ("Enter name of " ++ color ++ ":")
+  getLine
+
 respondToDraw :: IO String
 respondToDraw = do
   putStrLn "Do you accept the draw?"
@@ -520,127 +522,127 @@ play board p1 p2 _ = do
               putStrLn "Illegal Move. Try again!"
               play board p1 p2 2
 
-playWithTimer :: Board -> String -> String -> Int -> Int -> Int -> IO ()
-playWithTimer board p1 p2 1 time1 time2 = do
-  putStrLn ""
-  drawBoard board
-  putStrLn ""
-  putStrLn (p1 ++ " has " + show time1 + " seconds left")
-  start <- getCurrentTime
-  if not (isCheck board board White) && isStalemate White board board
-    then do
-      putStrLn (p1 ++ " is not in check and cannot make a move. It's a stalemate!")
-      return ()
-    else do
-      move <- promptForAndValidate (p1 ++ " make your move:")
-      case move of
-        (('q', 0), ('q', 0)) ->
-          return ()
-        (('z', 0), ('z', 0)) -> do
-          displayInstructions
-          end <- getCurrentTime
-          diff <- diffUTCTime end start
-          playWithTimer board p1 p2 1 (time1 - diff) time2
-        (('x', 0), ('x', 0)) -> do
-          putStrLn (p1 ++ " offers a draw to " ++ p2)
-          response <- respondToDraw
-          if response == "no"
-            then do
-              end <- getCurrentTime
-              diff <- diffUTCTime end start
-              playWithTimer board p1 p2 1 (time1 - diff) time2
-            else do
-              putStrLn "Draw accepted. It's a draw!"
-              return ()
-        (l1, l2) ->
-          case Map.lookup l1 board of
-            Just piece ->
-              if checkMove White l1 piece board l2
-                then
-                  let newBoard1 = makeMove l1 l2 piece board
-                   in if isCheck newBoard newBoard1 White && not (isCheckMate Black newBoard1 newBoard1)
-                        then do
-                          drawBoard newBoard1
-                          putStrLn ("Checkmate! " ++ p1 ++ " wins!")
-                          return ()
-                        else do
-                          end <- getCurrentTime
-                          diff <- diffUTCTime end start
-                          if isCheck newBoard newBoard1 White
-                            then do
-                              putStrLn "Check"
-                              play newBoard1 p1 p2 2 (time1 - diff) time2
-                            else playWithTimer newBoard1 p1 p2 2 (time1 - diff) time2
-                else do
-                  putStrLn "Illegal Move. Try again!"
-                  end <- getCurrentTime
-                  diff <- diffUTCTime end start
-                  play board p1 p2 1 (time1 - diff) time2
-            Nothing -> do
-              putStrLn "Illegal Move. Try again!"
-              end <- getCurrentTime
-              diff <- diffUTCTime end start
-              play board p1 p2 1 (time1 - diff) time2
-playWithTimer board p1 p2 _ time1 time2 = do
-  putStrLn ""
-  drawBoard board
-  putStrLn ""
-  putStrLn (p2 ++ " has " + show time2 + " seconds left")
-  start <- getCurrentTime
-  if not (isCheck board board Black) && isStalemate Black board board
-    then do
-      putStrLn (p2 ++ " is not in check and cannot make a move. It's a stalemate!")
-      return ()
-    else do
-      move <- promptForAndValidate (p2 ++ " make your move:")
-      case move of
-        (('q', 0), ('q', 0)) ->
-          return ()
-        (('z', 0), ('z', 0)) -> do
-          displayInstructions
-          end <- getCurrentTime
-          diff <- diffUTCTime end start
-          playWithTimer board p1 p2 2 time1 (time2 - diff)
-        (('x', 0), ('x', 0)) -> do
-          putStrLn (p2 ++ " offers a draw to " ++ p1)
-          response <- respondToDraw
-          if response == "no"
-            then do
-              end <- getCurrentTime
-              diff <- diffUTCTime end start
-              playWithTimer board p1 p2 2 time1 (time2 - diff)
-            else do
-              putStrLn "Draw accepted. It's a draw!"
-              return ()
-        (l1, l2) ->
-          case Map.lookup l1 board of
-            Just piece ->
-              if checkMove Black l1 piece board l2
-                then
-                  let newBoard1 = makeMove l1 l2 piece board
-                   in if isCheck newBoard1 newBoard1 Black && not (isCheckMate White newBoard1 newBoard1)
-                        then do
-                          drawBoard newBoard1
-                          putStrLn ("Checkmate! " ++ p2 ++ " wins!")
-                          return ()
-                        else do
-                          end <- getCurrentTime
-                          diff <- diffUTCTime end start
-                          if isCheck newBoard1 newBoard1 Black
-                            then do
-                              putStrLn "Check"
-                              playWithTimer board p1 p2 2 time1 (time2 - diff)
-                            else playWithTimer board p1 p2 2 time1 (time2 - diff)
-                else do
-                  putStrLn "Illegal Move. Try again!"
-                  end <- getCurrentTime
-                  diff <- diffUTCTime end start
-                  playWithTimer board p1 p2 2 time1 (time2 - diff)
-            Nothing -> do
-              putStrLn "Illegal Move. Try again!"
-              end <- getCurrentTime
-              diff <- diffUTCTime end start
-              playWithTimer board p1 p2 2 time1 (time2 - diff)
+-- playWithTimer :: Board -> String -> String -> Int -> Int -> Int -> IO ()
+-- playWithTimer board p1 p2 1 time1 time2 = do
+--   putStrLn ""
+--   drawBoard board
+--   putStrLn ""
+--   putStrLn (p1 ++ " has " + show time1 + " seconds left")
+--   start <- getCurrentTime
+--   if not (isCheck board board White) && isStalemate White board board
+--     then do
+--       putStrLn (p1 ++ " is not in check and cannot make a move. It's a stalemate!")
+--       return ()
+--     else do
+--       move <- promptForAndValidate (p1 ++ " make your move:")
+--       case move of
+--         (('q', 0), ('q', 0)) ->
+--           return ()
+--         (('z', 0), ('z', 0)) -> do
+--           displayInstructions
+--           end <- getCurrentTime
+--           diff <- diffUTCTime end start
+--           playWithTimer board p1 p2 1 (time1 - diff) time2
+--         (('x', 0), ('x', 0)) -> do
+--           putStrLn (p1 ++ " offers a draw to " ++ p2)
+--           response <- respondToDraw
+--           if response == "no"
+--             then do
+--               end <- getCurrentTime
+--               diff <- diffUTCTime end start
+--               playWithTimer board p1 p2 1 (time1 - diff) time2
+--             else do
+--               putStrLn "Draw accepted. It's a draw!"
+--               return ()
+--         (l1, l2) ->
+--           case Map.lookup l1 board of
+--             Just piece ->
+--               if checkMove White l1 piece board l2
+--                 then
+--                   let newBoard1 = makeMove l1 l2 piece board
+--                    in if isCheck newBoard newBoard1 White && not (isCheckMate Black newBoard1 newBoard1)
+--                         then do
+--                           drawBoard newBoard1
+--                           putStrLn ("Checkmate! " ++ p1 ++ " wins!")
+--                           return ()
+--                         else do
+--                           end <- getCurrentTime
+--                           diff <- diffUTCTime end start
+--                           if isCheck newBoard newBoard1 White
+--                             then do
+--                               putStrLn "Check"
+--                               play newBoard1 p1 p2 2 (time1 - diff) time2
+--                             else playWithTimer newBoard1 p1 p2 2 (time1 - diff) time2
+--                 else do
+--                   putStrLn "Illegal Move. Try again!"
+--                   end <- getCurrentTime
+--                   diff <- diffUTCTime end start
+--                   play board p1 p2 1 (time1 - diff) time2
+--             Nothing -> do
+--               putStrLn "Illegal Move. Try again!"
+--               end <- getCurrentTime
+--               diff <- diffUTCTime end start
+--               play board p1 p2 1 (time1 - diff) time2
+-- playWithTimer board p1 p2 _ time1 time2 = do
+--   putStrLn ""
+--   drawBoard board
+--   putStrLn ""
+--   putStrLn (p2 ++ " has " + show time2 + " seconds left")
+--   start <- getCurrentTime
+--   if not (isCheck board board Black) && isStalemate Black board board
+--     then do
+--       putStrLn (p2 ++ " is not in check and cannot make a move. It's a stalemate!")
+--       return ()
+--     else do
+--       move <- promptForAndValidate (p2 ++ " make your move:")
+--       case move of
+--         (('q', 0), ('q', 0)) ->
+--           return ()
+--         (('z', 0), ('z', 0)) -> do
+--           displayInstructions
+--           end <- getCurrentTime
+--           diff <- diffUTCTime end start
+--           playWithTimer board p1 p2 2 time1 (time2 - diff)
+--         (('x', 0), ('x', 0)) -> do
+--           putStrLn (p2 ++ " offers a draw to " ++ p1)
+--           response <- respondToDraw
+--           if response == "no"
+--             then do
+--               end <- getCurrentTime
+--               diff <- diffUTCTime end start
+--               playWithTimer board p1 p2 2 time1 (time2 - diff)
+--             else do
+--               putStrLn "Draw accepted. It's a draw!"
+--               return ()
+--         (l1, l2) ->
+--           case Map.lookup l1 board of
+--             Just piece ->
+--               if checkMove Black l1 piece board l2
+--                 then
+--                   let newBoard1 = makeMove l1 l2 piece board
+--                    in if isCheck newBoard1 newBoard1 Black && not (isCheckMate White newBoard1 newBoard1)
+--                         then do
+--                           drawBoard newBoard1
+--                           putStrLn ("Checkmate! " ++ p2 ++ " wins!")
+--                           return ()
+--                         else do
+--                           end <- getCurrentTime
+--                           diff <- diffUTCTime end start
+--                           if isCheck newBoard1 newBoard1 Black
+--                             then do
+--                               putStrLn "Check"
+--                               playWithTimer board p1 p2 2 time1 (time2 - diff)
+--                             else playWithTimer board p1 p2 2 time1 (time2 - diff)
+--                 else do
+--                   putStrLn "Illegal Move. Try again!"
+--                   end <- getCurrentTime
+--                   diff <- diffUTCTime end start
+--                   playWithTimer board p1 p2 2 time1 (time2 - diff)
+--             Nothing -> do
+--               putStrLn "Illegal Move. Try again!"
+--               end <- getCurrentTime
+--               diff <- diffUTCTime end start
+--               playWithTimer board p1 p2 2 time1 (time2 - diff)
 
 displayInstructions :: IO ()
 displayInstructions = do
@@ -667,4 +669,5 @@ main = do
   timer <- getTime
   case timer of
     Nothing -> play board player1 player2 1
-    Just i -> playWithTimer board player1 player2 1 i i
+
+-- Just i -> playWithTimer board player1 player2 1 i i

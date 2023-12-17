@@ -57,43 +57,43 @@ test7 :: Test
 test7 = TestCase (assertEqual "Check in bound" False (checkInbounds ('z', 2)))
 
 test8 :: Test
-test8 = TestCase (assertEqual "Legal Pawn forward move" True (checkLegal ('d', 2) ('d', 3) (Piece White Pawn)))
+test8 = TestCase (assertEqual "Legal Pawn forward move" True (checkLegal ('d', 2) ('d', 3) (Piece White Pawn True) mockBoard))
 
 test9 :: Test
-test9 = TestCase (assertEqual "Pawn illegal move" False (checkLegal ('d', 2) ('d', 5) (Piece White Pawn)))
+test9 = TestCase (assertEqual "Pawn illegal move" False (checkLegal ('d', 2) ('d', 5) (Piece White Pawn True) mockBoard))
 
 test10 :: Test
-test10 = TestCase (assertEqual "Knight leagal move" True (checkLegal ('b', 1) ('c', 3) (Piece White Knight)))
+test10 = TestCase (assertEqual "Knight leagal move" True (checkLegal ('b', 1) ('c', 3) (Piece White Knight True) mockBoard))
 
 test11 :: Test
-test11 = TestCase (assertEqual "Knight illegal move" False (checkLegal ('b', 1) ('b', 3) (Piece White Knight)))
+test11 = TestCase (assertEqual "Knight illegal move" False (checkLegal ('b', 1) ('b', 3) (Piece White Knight True) mockBoard))
 
 test12 :: Test
-test12 = TestCase (assertEqual "Rook vertical move" True (checkLegal ('d', 4) ('d', 7) (Piece White Rook)))
+test12 = TestCase (assertEqual "Rook vertical move" True (checkLegal ('d', 4) ('d', 7) (Piece White Rook True) mockBoard))
 
 test13 :: Test
-test13 = TestCase (assertEqual "Rook horizontal move" True (checkLegal ('f', 5) ('a', 5) (Piece White Rook)))
+test13 = TestCase (assertEqual "Rook horizontal move" True (checkLegal ('f', 5) ('a', 5) (Piece White Rook True) mockBoard))
 
 test14 :: Test
-test14 = TestCase (assertEqual "Rook diagonal move" False (checkLegal ('f', 5) ('h', 7) (Piece White Rook)))
+test14 = TestCase (assertEqual "Rook diagonal move" False (checkLegal ('f', 5) ('h', 7) (Piece White Rook True) mockBoard))
 
 test15 :: Test
-test15 = TestCase (assertEqual "Bishop diagonal move" True (checkLegal ('c', 1) ('f', 4) (Piece White Bishop)))
+test15 = TestCase (assertEqual "Bishop diagonal move" True (checkLegal ('c', 1) ('f', 4) (Piece White Bishop True) mockBoard))
 
 test16 :: Test
-test16 = TestCase (assertEqual "Bishop straight move" False (checkLegal ('c', 1) ('c', 4) (Piece White Bishop)))
+test16 = TestCase (assertEqual "Bishop straight move" False (checkLegal ('c', 1) ('c', 4) (Piece White Bishop True) mockBoard))
 
 test17 :: Test
-test17 = TestCase (assertEqual "Queen diagonal move" True (checkLegal ('d', 1) ('g', 4) (Piece White Queen)))
+test17 = TestCase (assertEqual "Queen diagonal move" True (checkLegal ('d', 1) ('g', 4) (Piece White Queen True) mockBoard))
 
 test18 :: Test
-test18 = TestCase (assertEqual "Queen vertical move" True (checkLegal ('d', 1) ('d', 5) (Piece White Queen)))
+test18 = TestCase (assertEqual "Queen vertical move" True (checkLegal ('d', 1) ('d', 5) (Piece White Queen True) mockBoard))
 
 test19 :: Test
-test19 = TestCase (assertEqual "Queen horizontal move" True (checkLegal ('d', 1) ('a', 1) (Piece White Queen)))
+test19 = TestCase (assertEqual "Queen horizontal move" True (checkLegal ('d', 1) ('a', 1) (Piece White Queen True) mockBoard))
 
 test20 :: Test
-test20 = TestCase (assertEqual "King one square move" True (checkLegal ('e', 1) ('e', 2) (Piece White King)))
+test20 = TestCase (assertEqual "King one square move" True (checkLegal ('e', 1) ('e', 2) (Piece White King True) mockBoard))
 
 test21 :: Test
-test21 = TestCase (assertEqual "King two square move" False (checkLegal ('e', 1) ('e', 3) (Piece White King)))
+test21 = TestCase (assertEqual "King two square move" False (checkLegal ('e', 1) ('e', 3) (Piece White King True) mockBoard))
