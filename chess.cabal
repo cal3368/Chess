@@ -32,8 +32,11 @@ library
   default-language: Haskell2010
   exposed-modules:
       Chess
-  other-modules:
       DrawBoard
+  other-modules:
+      Paths_chess
+  autogen-modules:
+      Paths_chess
 
 executable chess-exe
   main-is: Main.hs
@@ -58,10 +61,11 @@ test-suite chess-test
   autogen-modules:
       Paths_chess
   hs-source-dirs:
-      test
+      test, app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      HUnit
+    , base >=4.7 && <5
     , chess
     , containers >=0.6.7 && <0.7
   default-language: Haskell2010
