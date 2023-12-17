@@ -67,7 +67,7 @@ newBoard =
       (('b', 8), Piece Black Knight True),
       (('c', 8), Piece Black Bishop True),
       (('d', 8), Piece Black Queen True),
-      (('e', 8), Piece White King True),
+      (('e', 8), Piece Black King True),
       (('f', 8), Piece Black Bishop True),
       (('g', 8), Piece Black Knight True),
       (('h', 8), Piece Black Rook True),
