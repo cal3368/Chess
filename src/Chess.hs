@@ -90,7 +90,7 @@ checkCastlingCheck (c1, i1) (c2, i2) White board = case Map.toList board of
   ((key, value) : rest) ->
     if getColor value == White
       then checkCastlingCheck (c1, i1) (c2, i2) White (Map.fromList rest)
-      else any (checkMove White key value board) checkedSq
+      else not (any (checkMove Black key value board) checkedSq)
     where
       checkedSq = if c2 > c1 then [('f', 1), ('g', 1)] else [('d', 1), ('c', 1)]
 checkCastlingCheck (c1, i1) (c2, i2) Black board = case Map.toList board of
@@ -98,7 +98,7 @@ checkCastlingCheck (c1, i1) (c2, i2) Black board = case Map.toList board of
   ((key, value) : rest) ->
     if getColor value == Black
       then checkCastlingCheck (c1, i1) (c2, i2) Black (Map.fromList rest)
-      else any (checkMove Black key value board) checkedSq
+      else not (any (checkMove White key value board) checkedSq)
     where
       checkedSq = if c2 > c1 then [('f', 8), ('g', 8)] else [('d', 8), ('c', 8)]
 
@@ -113,11 +113,30 @@ checkCastlingAdjSq board Black False = checkBetweenRow ('e', 8) ('h', 8) board
 checkCastling :: Location -> Location -> Piece -> Board -> Bool
 checkCastling (c1, i1) (c2, i2) (Piece c t b) board =
   checkCastlingMoved (c1, i1) (c2, i2) (Piece c t b) board
-    && isCheck board board c
+    && not (isCheck board board checkColor)
     && checkCastlingCheck (c1, i1) (c2, i2) c board
     && checkCastlingAdjSq board c checkRook
   where
     checkRook = c2 < c1
+    checkColor = if c == White then Black else White
+
+castle :: Color -> Board -> String -> Board
+castle White board "Right" = updatedBoard
+  where
+    insertedBoard = Map.insert ('f', 1) (Piece White Rook False) (Map.insert ('g', 1) (Piece White King False) board)
+    updatedBoard = Map.delete ('e', 1) (Map.delete ('h', 1) insertedBoard)
+castle White board "Left" = updatedBoard
+  where
+    insertedBoard = Map.insert ('d', 1) (Piece White Rook False) (Map.insert ('c', 1) (Piece White King False) board)
+    updatedBoard = Map.delete ('a', 1) (Map.delete ('e', 1) insertedBoard)
+castle Black board "Right" = updatedBoard
+  where
+    insertedBoard = Map.insert ('f', 8) (Piece Black Rook False) (Map.insert ('g', 8) (Piece Black King False) board)
+    updatedBoard = Map.delete ('e', 8) (Map.delete ('h', 8) insertedBoard)
+castle _ board _ = updatedBoard
+  where
+    insertedBoard = Map.insert ('d', 8) (Piece Black Rook False) (Map.insert ('c', 8) (Piece Black King False) board)
+    updatedBoard = Map.delete ('e', 8) (Map.delete ('a', 8) insertedBoard)
 
 checkDirection :: Location -> Location -> Board -> Bool
 checkDirection (c1, i1) (c2, i2) board
@@ -170,10 +189,28 @@ checkLegal (c1, i1) (c2, i2) (Piece Black Pawn _) board
   where
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
-checkLegal (c1, i1) (c2, i2) (Piece _ King _) _
+checkLegal (c1, i1) (c2, i2) (Piece _ King False) _
   | abs (i2 - i1) == 1 && c2 == c1 = True
   | abs (c2i - c1i) == 1 && i2 == i1 = True
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 1 = True
+  | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
+checkLegal l1@(c1, i1) l2@(c2, i2) (Piece White King True) b
+  | abs (i2 - i1) == 1 && c2 == c1 = True
+  | abs (c2i - c1i) == 1 && i2 == i1 = True
+  | abs (c2i - c1i) == 1 && abs (i2 - i1) == 1 = True
+  | c2 == 'g' || c2 == 'c' && checkCastling l1 l2 (Piece White King True) b = True
+  | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
+checkLegal l1@(c1, i1) l2@(c2, i2) (Piece Black King True) b
+  | abs (i2 - i1) == 1 && c2 == c1 = True
+  | abs (c2i - c1i) == 1 && i2 == i1 = True
+  | abs (c2i - c1i) == 1 && abs (i2 - i1) == 1 = True
+  | c2 == 'g' || c2 == 'c' && checkCastling l1 l2 (Piece Black King True) b = True
   | otherwise = False
   where
     c1i = ord c1 - ord 'a'
@@ -190,9 +227,6 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Rook _) board
   | c1 == c2 && checkBetweenCol (c1, i1) (c2, i2) board = True
   | i1 == i2 && checkBetweenRow (c1, i1) (c2, i2) board = True
   | otherwise = False
--- where
---   c1i = ord c1 - ord 'a'
---   c2i = ord c2 - ord 'a'
 checkLegal (c1, i1) (c2, i2) (Piece _ Bishop _) board
   | abs (i2 - i1) == abs (c2i - c1i) && checkDiagonal (c1, i1) (c2, i2) board = True
   | otherwise = False
@@ -206,7 +240,17 @@ getColor (Piece color _ _) = color
 getType :: Piece -> Type
 getType (Piece _ t _) = t
 
+promotePawn :: Color -> Location -> Location -> Board -> Board
+promotePawn White l1 l2 b = Map.insert l2 (Piece White Queen True) (Map.delete l1 b)
+promotePawn Black l1 l2 b = Map.insert l2 (Piece Black Queen True) (Map.delete l1 b)
+
 makeMove :: Location -> Location -> Piece -> Board -> Board
+makeMove ('e', 1) ('g', 1) (Piece White King True) b = castle White b "Right"
+makeMove ('e', 1) ('c', 1) (Piece White King True) b = castle White b "Left"
+makeMove ('e', 8) ('g', 8) (Piece Black King True) b = castle Black b "Right"
+makeMove ('e', 8) ('c', 8) (Piece Black King True) b = castle Black b "Left"
+makeMove l1@(_, 7) l2@(_, 8) (Piece White Pawn _) b = promotePawn White l1 l2 b
+makeMove l1@(_, 2) l2@(_, 1) (Piece Black Pawn _) b = promotePawn Black l1 l2 b
 makeMove l1 l2 p b = mod_board
   where
     insertion = Map.insert l2 p b
@@ -491,3 +535,6 @@ main = do
   -- let player2Timer = 5400
   let board = newBoard
   play board player1 player2 1
+
+tb :: Board
+tb = Map.fromList [(('e', 1), Piece White King True), (('a', 1), Piece White Rook True), (('h', 1), Piece White Rook True), (('e', 2), Piece Black Pawn True)]

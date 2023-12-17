@@ -81,9 +81,6 @@ newBoard =
       (('h', 7), Piece Black Pawn True)
     ]
 
-getSquare :: Board -> Location -> Maybe Piece
-getSquare board (c, i) = Map.lookup (c, i) board
-
 drawBoard :: Board -> IO ()
 drawBoard board = do
   putStrLn "   a   b   c   d   e   f   g   h"
