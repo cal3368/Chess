@@ -21,7 +21,7 @@ We are going to create a chess game using concepts learned throughout the semest
 
 ## Data Types
 
-There are a couple of data types that have to be considered when implementing Chess. First, we have to represent each Chess piece and we decided to use Enums to list out the different colors and chess types as they are constant values. This is shown in our data types `Color` and `Type`.
+There are a couple of data types that are considered when implementing Chess. First, we have to represent each Chess piece and we decided on using Enums to list out the different colors and chess types as they are constant values. This is shown in our data types `Color` and `Type`.
 
 ```
 data Color = White | Black
@@ -31,7 +31,7 @@ data Type = Pawn | Knight | Bishop | Queen | King | Rook
   deriving (Eq, Enum, Bounded, Read, Show)
 ```
 
-Next, we create a Piece data type that combines the two data types into a constructor with an additional boolean attribute to determine if a piece has moved. The boolean attribute is used when a player wants to Castle and checks if the King or Rook has moved.
+Next, we create a Piece data type that combines Color and Type into a constructor with an additional boolean attribute to determine if a piece has moved. The boolean attribute is used when a player wants to Castle and checks if the King or Rook has moved.
 
 ```
 data Piece = Piece Color Type Bool
@@ -46,7 +46,7 @@ type Location = (Char, Int)
 type Board = Map.Map Location Piece
 ```
 
-To represent each chess piece on the board, we use unicode characters in terminal UI.
+To display each chess piece on the board, we use unicode characters in terminal UI.
 
 ```
 instance Show Piece where
@@ -64,48 +64,18 @@ instance Show Piece where
   show (Piece Black King _) = "♚"
 ```
 
-## Castling
-
-Castling is the only move in chess that alloows 2 pieces to move in a turn and there are 4 conditions that need to be met before we can castle. First, we need to check that the King and Rook has not moved yet.
-
-Initially, we had a data type `Piece` as shown below where Color is White or Black and Type is the type of chess piece it is.
-
-```
-data Piece = Piece Color Type
-  deriving (Eq)
-```
-
-However, with the condition of checking if a piece has moved, we decided to add an extra boolean attribute to each Piece to indicate if it has moved.
-
-```
-data Piece = Piece Color Type Boolean
-  deriving (Eq)
-```
-
-The next condition checked is if there are pieces in between the Rook and the King. The function `checkBetweenRows` is used if the squares king-side or queen-side are occupied and will return True if there are no pieces present. The third condition is checking if the King is in check by using the `isCheck` function. Finally, the fourth condition is checking if the squares the king passes through castling has the possibility of being taken. This means that if the two squares on the left and right of the king could be taken by the opposing player's pieces, we cannot castle. To check for this condition, we iterate through each of the opposing players' pieces and if one of them can land on that square, we return False.
-
-### Design Choices
-Some design choices that were made on castling was how to determine if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function, acting as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we can then consider castling on that side. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function. Additionally, a piece has the potential to move back and forth, leading to continuous increments in the counter. 
-
-A possible improvement in implementation is to split the King and Rook into seperate data types so only the boolean attributes are used for them. Currently, each chess piece has a boolean attribute but only the King and Rook would use the boolean values so the data type can be split as shown below.
-
-```
-data Piece = Piece Color Type | PieceKingRook Color Type Boolean
-  deriving (Eq)
-```
-
 ## Maneuvering Chess pieces
 
-To move chess pieces on a board, there are multiple checks that need to be passed. 
+To move chess pieces on a board, there are multiple conditions that need to be passed. 
 
-- First, we need to check if the piece we are moving is the same color as the owner and the function `validateOwner` performs this check. Basically, we check if the color attribute of the `Piece` matches with the current player. 
-- The next condition to check is if the piece is in bounds of the chess board which can be accomplished by checking if the letter is in between `a` and `h` and the number is between 1 and 8. 
+- First, we need to check if the piece we are moving is the same color as the current player. The function `validateOwner` checks this condition. In the implementation, we check if the color attribute of `Piece` matches with the current player.
+- The next condition to check is if the piece is in bounds of the chess board which can be done by checking if the letter is in between `a` and `h` and the number is between 1 and 8. 
 - In addition, we need to check if there are any pieces in between the square we are moving from and the square we are moving to which is checked by `checkCastlingAdjSq`. 
 - The last condition is checking if the move puts the player in check because if the move is made, the player loses.
 
 ### Chess Piece movement
 
-For each chess type, different rules have to be followed when moving around the chess board. For example bishops can only move diagonally and rooks vertically and horiozontally. The function `checkLegal` handles this check when a piece wants to move from one square to another. The function uses pattern matching is used to match each chess type with the squares they can move to. A rook pattern matching is shown below to illustrate horizontal and vertical movement
+For each chess type, different chess rules have to be followed when moving around the chess board. For example bishops can only move diagonally and rooks move vertically and horiozontally. The function `checkLegal` handles the condition when a piece wants to move from one square to another and utilizes pattern matching to match each chess type with the squares they can move to. A rook pattern matching is shown below to illustrate horizontal and vertical movement.
 
 ```
 checkLegal (c1, i1) (c2, i2) (Piece _ Rook _) board
@@ -114,7 +84,7 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Rook _) board
   | otherwise = False
 ```
 
-However, there are also some special cases among the chess pieces for example pawns and kings. For pawns, they are not allowed to move backwards so we need to handle cases where white pawns can only move up a number and black pawns can only move down a number. In addition, if a pawn has not moved, they can move two squares forward which can be checked by looking at a pawn's original location. The last move a pawn can make is moving diagonally to take a piece. The last pattern match checks if the opposing players piece is present diagonal to the pawn and if it is, we can make the move.
+However, there are cases where a piece like a King or Pawn can move outside of it's conventional movement or move only in one direction. For pawns, they are not allowed to move backwards so we only allow white pawns to move up a row and black pawns to move down a row. In addition, if a pawn has not moved, they are allowed to move two squares forward which can be checked by looking at a pawn's original location. The last move a pawn can make is moving diagonally to take a piece. The last pattern match shows that if an opposing players' piece is present diagonal to the pawn, we can make the move and capture it.
 
 ```
 checkLegal (c1, i1) (c2, i2) (Piece White Pawn _) board
@@ -136,7 +106,37 @@ checkLegal (c1, i1) (c2, i2) (Piece White Pawn _) board
     c2i = ord c2 - ord 'a'
 ```
 
-For a King, we usually move one square around the King but castling allows the King to move two spaces for the left and right.
+In the case of a King, we usually move one square around the King but castling allows the King to move two spaces to the left and right.
+
+## Castling
+
+Castling is the only move in chess that allows 2 pieces to move in a turn and there are 4 conditions that need to be met before we can castle. First, we need to check that the King and Rook has not moved yet.
+
+Initially, we had a data type `Piece` as shown below where Color is White or Black and Type is the type of chess piece it is.
+
+```
+data Piece = Piece Color Type
+  deriving (Eq)
+```
+
+However, with the condition of checking if a piece has moved, we decided to add an extra boolean attribute to each Piece to indicate if it is possible to castle. Using this boolean, we check if both the King and Rook is True which indicates that neither of the pieces have moved.
+
+```
+data Piece = Piece Color Type Boolean
+  deriving (Eq)
+```
+
+The next condition to check is if there are pieces in between the Rook and the King. The function `checkBetweenRows` checks all the squares between the Rook and King and will return True if there are no pieces present. The third condition is checking if the King is in check by using the `isCheck` function. Finally, the fourth condition is checking if the squares the king passes through castling has the possibility of being taken. This means that if the two squares on the left and right of the king could be taken by the opposing player's pieces, we cannot castle. To check for this condition, we iterate through each of the opposing players' pieces and if one of them can land on that square, we return False.
+
+### Design Choices
+A design choice that was made was determining if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function which will act as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we allow the player to castle. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function which leads to a possibility of a Rook moving back and forth, leading to continuous increments in the counter. 
+
+A possible improvement in implementation is to split the King and Rook into seperate data types so only the boolean attributes are used for them. Currently, each chess piece has a boolean attribute but only the King and Rook would use the boolean values.
+
+```
+data Piece = Piece Color Type | PieceKingRook Color Type Boolean
+  deriving (Eq)
+```
 
 ## Check
 
