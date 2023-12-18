@@ -192,10 +192,10 @@ isNotCheckMate White b1 b2 = case Map.toList b2 of
 
 ## Additional Haskell Libraries Required
 
-- containers >= 0.6.7 && < 0.7
-- time
-- ansi-terminal >= 0.11 && < 0.12
-- HUnit
+- `containers >= 0.6.7 && < 0.7`
+- `time`
+- `ansi-terminal >= 0.11 && < 0.12`
+- `HUnit`
 
 ## Code Structure
 
