@@ -32,7 +32,7 @@ data Piece = Piece Color Type Bool
   deriving (Eq)
 ```
 
-To represent each square in the chess board, we use type called Location which is a tuple of Character and Int. To represent the chess board, we use `Data.Strict.Map` where the key is a Location and the value is a chess Piece. 
+To represent each square in the chess board, we use type called Location which is a tuple of Character and Int. To represent the chess board, we use `Data.Strict.Map` where the key is a Location and the value is a chess Piece.
 
 ```
 type Location = (Char, Int)
@@ -60,7 +60,7 @@ instance Show Piece where
 
 ## Castling
 
-Castling is the only move in chess that alloows 2 pieces to move in a turn and there are 4 conditions that need to be met before we can castle. First, we need to check that the King and Rook has not moved yet. 
+Castling is the only move in chess that alloows 2 pieces to move in a turn and there are 4 conditions that need to be met before we can castle. First, we need to check that the King and Rook has not moved yet.
 
 Initially, we had a data type `Piece` as shown below where Color is White or Black and Type is the type of chess piece it is.
 
@@ -69,7 +69,8 @@ data Piece = Piece Color Type
   deriving (Eq)
 ```
 
-However, with the condition of checking if a piece has moved, we decided to add an extra boolean attribute to each Piece to indicate if it has moved. 
+However, with the condition of checking if a piece has moved, we decided to add an extra boolean attribute to each Piece to indicate if it has moved.
+
 ```
 data Piece = Piece Color Type Boolean
   deriving (Eq)
@@ -77,7 +78,7 @@ data Piece = Piece Color Type Boolean
 
 The next condition checked is if there are pieces in between the Rook and the King. The function `checkBetweenRows` is used if the squares king-side or queen-side are occupied and will return True if there are no pieces present. The third condition is checking if the King is in check by using the `isCheck` function. Finally, the fourth condition is checking if the squares the king passes through castling has the possibility of being taken. This means that if the two squares on the left and right of the king could be taken by the opposing player's pieces, we cannot castle. To check for this condition, we iterate through each of the opposing players' pieces and if one of them can land on that square, we return False.
 
-Some design choices that were made on castling was how to determine if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function, acting as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we can then consider castling on that side. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function. Additionally, a piece has the potential to move back and forth, leading to continuous increments in the counter. 
+Some design choices that were made on castling was how to determine if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function, acting as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we can then consider castling on that side. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function. Additionally, a piece has the potential to move back and forth, leading to continuous increments in the counter.
 
 A possible improvement in implementation is to split the King and Rook into seperate data types so only the boolean attributes are used for them. Currently, each chess piece has a boolean attribute but only the King and Rook would use the boolean values so the data type can be split as shown below.
 
@@ -154,15 +155,17 @@ isNotCheckMate Black b1 b2 = case Map.toList b2 of
 ## Additional Details
 
 ## Additional Haskell Libraries Required
-  - containers >= 0.6.7 && < 0.7
-  - time
-  - ansi-terminal >= 0.11 && < 0.12
-  - HUnit
+
+- containers >= 0.6.7 && < 0.7
+- time
+- ansi-terminal >= 0.11 && < 0.12
+- HUnit
 
 - Briefly describe the structure of the code (what are the main components, the
   module dependency structure). Why was the project modularized in this way?
 
 ## Code Example
+
 ```
 -- Move a piece from one location to another
 makeMove :: Location -> Location -> Piece -> Board -> Board
@@ -177,21 +180,31 @@ makeMove l1 l2 p b = mod_board
     insertion = Map.insert l2 p b
     mod_board = Map.delete l1 insertion
 ```
+
 - Choose (at least) one code excerpt that is a particularly good example of
   Haskell features, idioms, and/or style and describe it.
 
 ## Challenges
+
 - One difficulty we faced was to create the isCheck and isCheckmate functions using Haskell at first because the most obvious approaching is iterating over all the pieces on the board. This is more complicated with Haskell. Ultimately we were able to solve the probelm by passing two list representations of our board to the function, one that removes pieces as we access the first item in the list and one that remains the same so we can check the conditions of check and checkmate.
 - Another difficulty we faced was not having immutable data types to store attributes such as whether the kings and rooks have moved for castling. To get around this issue we added a boolean at the end of each Piece and made it True for all the Pieces even though they did not need any boolean for castling.
 - We had trouble finding a way to refine our play/playWithTimer functions so they could be one function and also so that we did not need to have a version for each player making their move.
 - Were any parts of the code particularly difficult to expres using Haskell?
   What are the challenges in refining and/or refactoring this code to be a
   better example of idiomatic Haskell?
+- Adding dependencies in general was a difficult task to get around, we primarily looked at the cabal files for the assignments to understand how things actually work and how is cabal file used. We initally started by directly adding the changes to `.cabal` file only to find out that stack basically rebuilds the .cabal file from `package.yaml`. We also had problem installing `HUnit` since the official page for HUnit has no instructions on how to download the packages unlike how npm has the detailed documentation how to go about this process.
 
 ## Attempted and Abandoned Approaches
-- We attempted to utilize a TUI library called Brick for displaying and playing the game. It would have made it easier to display the board because it would not have continuously displayed the next board in the terminal. Instead, it would have updated the screen each time a move was made. It would have made the timer easier to display, as well. We abandoned this because we were having trouble implementing the idea with Brick. We decided to spend our time implementing the timer in our current method because we were not certain we could accomplish the TUI in time. We wanted to add as many features as we could with the rest of our time.
+
+- We attempted to utilize a `TUI` library called Brick for displaying and playing the game. It would have made it easier to display the board because it would not have continuously displayed the next board in the terminal. Instead, it would have updated the screen each time a move was made. It would have made the timer easier to display, as well. We abandoned this because we were having trouble implementing the idea with Brick. We decided to spend our time implementing the timer in our current method because we were not certain we could accomplish the TUI in time. We wanted to add as many features as we could with the rest of our time.
 
 - We also attempted to provide a save game option to our implementation. We spent time researching ways to accomplish this, but unfortunately ran out of time to accomplish this stretch goal.
 
 Review the final project grading rubric and discuss any relevant aspects of the
 project.
+
+## Testing.
+
+- We have provided an extensive of suite of test functions. Since Chess has a number of rules on how different pieces should behave and different in different situation and each piece can have a different way of moving around the board.
+- Multiple test have been written for the functions to cater to the different rules that different pieces are bound to.
+- We use `HUnit` testing which is similar to the `JUnit` testing in Java to test the individual functions.
