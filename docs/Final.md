@@ -86,6 +86,26 @@ data Piece = Piece Color Type | PieceKingRook Color Type Boolean
   deriving (Eq)
 ```
 
+## Checkmate
+
+At the end of every move, we check if the board is in checkmate after the move is made
+
+```
+isNotCheckMate :: Color -> Board -> Board -> Bool
+isNotCheckMate White b1 b2 = case Map.toList b2 of
+  [] -> False
+  ((key, value) : rest) ->
+    if getColor value == Black
+      then isNotCheckMate White b1 (Map.fromList rest)
+      else any (checkMove White key value b1) allLocations || isNotCheckMate White b1 (Map.fromList rest)
+isNotCheckMate Black b1 b2 = case Map.toList b2 of
+  [] -> False
+  ((key, value) : rest) ->
+    if getColor value == White
+      then isNotCheckMate Black b1 (Map.fromList rest)
+      else any (checkMove Black key value b1) allLocations || isNotCheckMate Black b1 (Map.fromList rest)
+```
+
 ## Additional Details
 
 ## Additional Haskell Libraries Required
