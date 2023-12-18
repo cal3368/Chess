@@ -105,7 +105,7 @@ play board p1 p2 1 = do
               if checkMove White l1 piece board l2
                 then
                   let newBoard1 = makeMove l1 l2 piece board
-                   in if isCheck newBoard newBoard1 White && not (isCheckMate Black newBoard1 newBoard1)
+                   in if isCheck newBoard newBoard1 White && not (isNotCheckMate Black newBoard1 newBoard1)
                         then do
                           drawBoard newBoard1
                           putStrLn ("Checkmate! " ++ p1 ++ " wins!")
@@ -152,7 +152,7 @@ play board p1 p2 _ = do
               if checkMove Black l1 piece board l2
                 then
                   let newBoard1 = makeMove l1 l2 piece board
-                   in if isCheck newBoard1 newBoard1 Black && not (isCheckMate White newBoard1 newBoard1)
+                   in if isCheck newBoard1 newBoard1 Black && not (isNotCheckMate White newBoard1 newBoard1)
                         then do
                           drawBoard newBoard1
                           putStrLn ("Checkmate! " ++ p2 ++ " wins!")
@@ -221,7 +221,7 @@ playWithTimer board p1 p2 1 time1 time2
                   if checkMove White l1 piece board l2
                     then
                       let newBoard1 = makeMove l1 l2 piece board
-                       in if isCheck newBoard newBoard1 White && not (isCheckMate Black newBoard1 newBoard1)
+                       in if isCheck newBoard newBoard1 White && not (isNotCheckMate Black newBoard1 newBoard1)
                             then do
                               drawBoard newBoard1
                               putStrLn ("Checkmate! " ++ p1 ++ " wins!")
@@ -302,7 +302,7 @@ playWithTimer board p1 p2 _ time1 time2
                   if checkMove Black l1 piece board l2
                     then
                       let newBoard1 = makeMove l1 l2 piece board
-                       in if isCheck newBoard1 newBoard1 Black && not (isCheckMate White newBoard1 newBoard1)
+                       in if isCheck newBoard1 newBoard1 Black && not (isNotCheckMate White newBoard1 newBoard1)
                             then do
                               drawBoard newBoard1
                               putStrLn ("Checkmate! " ++ p2 ++ " wins!")

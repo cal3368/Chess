@@ -31,30 +31,38 @@ instance Show Piece where
   show (Piece Black Queen _) = "♛"
   show (Piece Black King _) = "♚"
 
+-- Lists all locations of the chess board from a1 to h8 as a list
 allLocations :: [Location]
 allLocations = [(char, num) | char <- ['a' .. 'h'], num <- [1 .. 8]]
 
+-- Checks if the chess piece is the correct color
 validateOwner :: Location -> Color -> Board -> Bool
 validateOwner (c, i) color board = case Map.lookup (c, i) board of
   Nothing -> False
   Just p -> color == getColor p
 
+-- Checks if the location is not out of bounds of the chess board
 checkInbounds :: Location -> Bool
 checkInbounds (c, i)
   | i <= 0 || i > 8 = False
   | (ord c - ord 'a') > 7 || (ord c - ord 'a') < 0 = False
   | otherwise = True
 
-checkDestSourceColors :: Location -> Color -> Board -> Bool
-checkDestSourceColors loc color b = case Map.lookup loc b of
+{-
+If the destination of a piece lands on another piece, check
+the other piece is a different color to take
+-}
+checkDestColor :: Location -> Color -> Board -> Bool
+checkDestColor loc color b = case Map.lookup loc b of
   Nothing -> True
   Just p -> color /= getColor p
 
+-- Checks if a move is valid from one location to another
 checkMove :: Color -> Location -> Piece -> Board -> Location -> Bool
 checkMove Black source piece b dest =
   validateOwner source Black b
     && checkInbounds dest
-    && checkDestSourceColors dest Black b
+    && checkDestColor dest Black b
     && checkLegal source dest piece b
     && checkDirection source dest b
     && not (isCheck mod_board mod_board White)
@@ -64,7 +72,7 @@ checkMove Black source piece b dest =
 checkMove White source piece b dest =
   validateOwner source White b
     && checkInbounds dest
-    && checkDestSourceColors dest White b
+    && checkDestColor dest White b
     && checkLegal source dest piece b
     && checkDirection source dest b
     && not (isCheck mod_board mod_board Black)
@@ -92,7 +100,7 @@ checkCastlingMoved (c1, _) (c2, _) (Piece Black _ True) board =
       Nothing -> False
       Just (Piece _ tr br) -> tr == Rook && br
 
--- Check if the adjascent squares of castle and rook are under check
+-- Check if the adjascent squares of the king is under attack
 checkCastlingCheck :: Location -> Location -> Color -> Board -> Board -> Bool
 checkCastlingCheck (c1, i1) (c2, i2) White board1 board2 = case Map.toList board1 of
   [] -> False
@@ -118,7 +126,7 @@ checkCastlingAdjSq board White False = checkBetweenRow ('e', 1) ('h', 1) board
 checkCastlingAdjSq board Black True = checkBetweenRow ('e', 8) ('a', 8) board
 checkCastlingAdjSq board Black False = checkBetweenRow ('e', 8) ('h', 8) board
 
--- Check castling condition
+-- Checks if castling is possible
 checkCastling :: Location -> Location -> Piece -> Board -> Bool
 checkCastling (c1, i1) (c2, i2) (Piece c t b) board =
   checkCastlingMoved (c1, i1) (c2, i2) (Piece c t b) board
@@ -129,6 +137,7 @@ checkCastling (c1, i1) (c2, i2) (Piece c t b) board =
     checkRook = c2 < c1
     checkColor = if c == White then Black else White
 
+-- Move the King and Rook into the appropriate position when castling
 castle :: Color -> Board -> String -> Board
 castle White board "Right" = updatedBoard
   where
@@ -147,12 +156,14 @@ castle _ board _ = updatedBoard
     insertedBoard = Map.insert ('d', 8) (Piece Black Rook False) (Map.insert ('c', 8) (Piece Black King False) board)
     updatedBoard = Map.delete ('e', 8) (Map.delete ('a', 8) insertedBoard)
 
+-- Checks if there are pieces blocking a move from a direction
 checkDirection :: Location -> Location -> Board -> Bool
 checkDirection (c1, i1) (c2, i2) board
   | c1 /= c2 && i1 /= i2 = checkDiagonal (c1, i1) (c2, i2) board
   | c1 == c2 = checkBetweenCol (c1, i1) (c2, i2) board
   | otherwise = checkBetweenRow (c1, i1) (c2, i2) board
 
+-- Chekc
 checkLegal :: Location -> Location -> Piece -> Board -> Bool
 checkLegal (c1, i1) (c2, i2) (Piece _ Knight _) _
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 2
@@ -362,20 +373,22 @@ checkDiagonal (c1, i1) (c2, i2) board
       Just _ -> False
   | otherwise = True
 
-isCheckMate :: Color -> Board -> Board -> Bool
-isCheckMate White b1 b2 = case Map.toList b2 of
+-- Checks if the board is not in checkmate
+isNotCheckMate :: Color -> Board -> Board -> Bool
+isNotCheckMate White b1 b2 = case Map.toList b2 of
   [] -> False
   ((key, value) : rest) ->
     if getColor value == Black
-      then isCheckMate White b1 (Map.fromList rest)
-      else any (checkMove White key value b1) allLocations || isCheckMate White b1 (Map.fromList rest)
-isCheckMate Black b1 b2 = case Map.toList b2 of
+      then isNotCheckMate White b1 (Map.fromList rest)
+      else any (checkMove White key value b1) allLocations || isNotCheckMate White b1 (Map.fromList rest)
+isNotCheckMate Black b1 b2 = case Map.toList b2 of
   [] -> False
   ((key, value) : rest) ->
     if getColor value == White
-      then isCheckMate Black b1 (Map.fromList rest)
-      else any (checkMove Black key value b1) allLocations || isCheckMate Black b1 (Map.fromList rest)
+      then isNotCheckMate Black b1 (Map.fromList rest)
+      else any (checkMove Black key value b1) allLocations || isNotCheckMate Black b1 (Map.fromList rest)
 
+-- Checks if the board is in stalemate
 isStalemate :: Color -> Board -> Board -> Bool
 isStalemate c b1 b2 = case Map.toList b1 of
   [] -> False
