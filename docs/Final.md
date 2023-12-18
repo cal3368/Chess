@@ -12,7 +12,12 @@ We are going to create a chess game using concepts learned throughout the semest
 
 ## Project Execution Summary
 
-The first implementation to consider was checking if a piece can move from one square to another. This involved going through a lot of rules for example if a piece is blocking the path as well as how each chess type moves according to the rules. Once we have implemented a check for piece movement, the hardest implementation was determining if a board was in Check or Checkmate. This involved going through each piece on the board and checking if the king is under attack or if the player has no valid moves to save the king. Throughout each of the stages, we modify the `play` function to include chess movement and checks to ensure our functions work correctly. Castling was implemented after the check and checkmate conditions and we had to modify some existing functions like `checkLegal` to allow a king to move two spaces and the rook and king to be at correct positions. Once we have the chess game working, we looked at implementing a stretch goal of creating a timer with the board.
+- The first implementation to consider is deciding how to represent the chess pieces and the chess board. 
+- Using the data types created, we considered the conditions of moving a piece from one square to another. This involved going through various rules for example, if a piece is blocking the path as well as how each chess type moves according to chess rules.
+- Once we have implemented a check for piece movement, the hardest implementation was determining if a board was in Check or Checkmate. This involved going through each piece on the board and checking if the king is under attack or if the player has no valid moves to save the king. 
+- Throughout each of the stages, we modify the `play` function to include chess movement and checks to ensure our functions work correctly. 
+- Castling was implemented after the check and checkmate conditions and we had to modify some existing functions like `checkLegal` to allow a king to move two spaces and the rook and king to be at correct positions. 
+- Once we have the chess game working, we looked at implementing a stretch goal of creating a timer with the board.
 
 ## Data Types
 
