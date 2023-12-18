@@ -12,11 +12,11 @@ We are going to create a chess game using concepts learned throughout the semest
 
 ## Project Execution Summary
 
-- The first implementation to consider is deciding how to represent the chess pieces and the chess board. 
+- The first implementation to consider is deciding how to represent the chess pieces and the chess board.
 - Using the data types created, we considered the conditions of moving a piece from one square to another. This involved going through various rules for example, if a piece is blocking the path as well as how each chess type moves according to chess rules.
-- Once we have implemented a check for piece movement, the hardest implementation was determining if a board was in Check or Checkmate. This involved going through each piece on the board and checking if the king is under attack or if the player has no valid moves to save the king. 
-- Throughout each of the stages, we modify the `play` function to include chess movement and checks to ensure our functions work correctly. 
-- Castling was implemented after the check and checkmate conditions and we had to modify some existing functions like `checkLegal` to allow a king to move two spaces and the rook and king to be at correct positions. 
+- Once we have implemented a check for piece movement, the hardest implementation was determining if a board was in Check or Checkmate. This involved going through each piece on the board and checking if the king is under attack or if the player has no valid moves to save the king.
+- Throughout each of the stages, we modify the `play` function to include chess movement and checks to ensure our functions work correctly.
+- Castling was implemented after the check and checkmate conditions and we had to modify some existing functions like `checkLegal` to allow a king to move two spaces and the rook and king to be at correct positions.
 - Once we have the chess game working, we looked at implementing a stretch goal of creating a timer with the board.
 
 ## Data Types
@@ -64,13 +64,44 @@ instance Show Piece where
   show (Piece Black King _) = "♚"
 ```
 
+## Castling
+
+Castling is the only move in chess that alloows 2 pieces to move in a turn and there are 4 conditions that need to be met before we can castle. First, we need to check that the King and Rook has not moved yet.
+
+Initially, we had a data type `Piece` as shown below where Color is White or Black and Type is the type of chess piece it is.
+
+```
+data Piece = Piece Color Type
+  deriving (Eq)
+```
+
+However, with the condition of checking if a piece has moved, we decided to add an extra boolean attribute to each Piece to indicate if it has moved.
+
+```
+data Piece = Piece Color Type Boolean
+  deriving (Eq)
+```
+
+The next condition checked is if there are pieces in between the Rook and the King. The function `checkBetweenRows` is used if the squares king-side or queen-side are occupied and will return True if there are no pieces present. The third condition is checking if the King is in check by using the `isCheck` function. Finally, the fourth condition is checking if the squares the king passes through castling has the possibility of being taken. This means that if the two squares on the left and right of the king could be taken by the opposing player's pieces, we cannot castle. To check for this condition, we iterate through each of the opposing players' pieces and if one of them can land on that square, we return False.
+
+### Design Choices
+
+Some design choices that were made on castling was how to determine if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function, acting as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we can then consider castling on that side. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function. Additionally, a piece has the potential to move back and forth, leading to continuous increments in the counter.
+
+A possible improvement in implementation is to split the King and Rook into seperate data types so only the boolean attributes are used for them. Currently, each chess piece has a boolean attribute but only the King and Rook would use the boolean values so the data type can be split as shown below.
+
+```
+data Piece = Piece Color Type | PieceKingRook Color Type Boolean
+  deriving (Eq)
+```
+
 ## Maneuvering Chess pieces
 
-To move chess pieces on a board, there are multiple conditions that need to be passed. 
+To move chess pieces on a board, there are multiple checks that need to be passed.
 
-- First, we need to check if the piece we are moving is the same color as the current player. The function `validateOwner` checks this condition. In the implementation, we check if the color attribute of `Piece` matches with the current player.
-- The next condition to check is if the piece is in bounds of the chess board which can be done by checking if the letter is in between `a` and `h` and the number is between 1 and 8. 
-- In addition, we need to check if there are any pieces in between the square we are moving from and the square we are moving to which is checked by `checkCastlingAdjSq`. 
+- First, we need to check if the piece we are moving is the same color as the owner and the function `validateOwner` performs this check. Basically, we check if the color attribute of the `Piece` matches with the current player.
+- The next condition to check is if the piece is in bounds of the chess board which can be accomplished by checking if the letter is in between `a` and `h` and the number is between 1 and 8.
+- In addition, we need to check if there are any pieces in between the square we are moving from and the square we are moving to which is checked by `checkCastlingAdjSq`.
 - The last condition is checking if the move puts the player in check because if the move is made, the player loses.
 
 ### Chess Piece movement
@@ -129,7 +160,8 @@ data Piece = Piece Color Type Boolean
 The next condition to check is if there are pieces in between the Rook and the King. The function `checkBetweenRows` checks all the squares between the Rook and King and will return True if there are no pieces present. The third condition is checking if the King is in check by using the `isCheck` function. Finally, the fourth condition is checking if the squares the king passes through castling has the possibility of being taken. This means that if the two squares on the left and right of the king could be taken by the opposing player's pieces, we cannot castle. To check for this condition, we iterate through each of the opposing players' pieces and if one of them can land on that square, we return False.
 
 ### Design Choices
-A design choice that was made was determining if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function which will act as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we allow the player to castle. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function which leads to a possibility of a Rook moving back and forth, leading to continuous increments in the counter. 
+
+A design choice that was made was determining if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function which will act as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we allow the player to castle. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function which leads to a possibility of a Rook moving back and forth, leading to continuous increments in the counter.
 
 A possible improvement in implementation is to split the King and Rook into seperate data types so only the boolean attributes are used for them. Currently, each chess piece has a boolean attribute but only the King and Rook would use the boolean values.
 
@@ -144,7 +176,7 @@ After a player makes a legal move, the new state of the board is checked to see 
 
 ## Checkmate
 
-At the end of every move, we check if the board is not in checkmate after the move is made. We iterate through all the pieces on the board and if the piece is the opposing players' color, we move to the next piece. If it's the same color, we check if the piece can move the player out of check through any of it's legal moves. 
+At the end of every move, we check if the board is not in checkmate after the move is made. We iterate through all the pieces on the board and if the piece is the opposing players' color, we move to the next piece. If it's the same color, we check if the piece can move the player out of check through any of it's legal moves.
 
 ```
 isNotCheckMate :: Color -> Board -> Board -> Bool
@@ -166,6 +198,7 @@ isNotCheckMate White b1 b2 = case Map.toList b2 of
 - HUnit
 
 ## Code Structure
+
 We utilized the model-view-controller structure for our project. The view component is represented by our DrawBoard module. This module contains the code responsible for displaying the current game state on a board in the terminal. The model component is contained in out Chess module and is responsible for the functional aspects of the game of chess being implemented in our program. This includes everything that goes with making moves and changing the board approproately. The Controller module is responsible to the user interaction and contains the IO interactions that allow the game to run and display in the terminal. We decided to use this structure because it broke the program into its necessary components and provided a good framework.
 
 ## Code Example
@@ -214,6 +247,12 @@ project.
 
 ## Testing.
 
-- We have provided an extensive suite of test functions. Since Chess has a number of rules on how different pieces should behave and different in different situation and each piece can have a different way of moving around the board.
-- Multiple test have been written for the functions to cater to the different rules that different pieces are bound to.
-- We use `HUnit` testing which is similar to the `JUnit` testing in Java to test the individual functions.
+- This test suite is designed to rigorously validate the rules and logic of our Chess game implementation. It ensures that every game piece behaves as expected in various scenarios, maintaining the integrity of traditional chess rules.
+- Tests are organized into categories reflecting different aspects of the game, such as piece movement, game state checks, and special conditions like check and checkmate. Each test is labeled with a descriptive name for easy identification.
+- For instance, 'Valid Owner' tests ensure pieces are moved by the correct player, while 'Check Inbound' tests validate moves within the board limits. 'Check Legal' tests confirm if a move is legal according to chess rules for each piece.
+- The function validateOwner checks if a piece belongs to the player attempting a move, crucial for enforcing turn-based play. checkLegal assesses if a move is valid per the unique movement rules of each chess piece.
+- For example, test8 checks for a legal pawn move, a fundamental part of game play, while test14 ensures a rook cannot move diagonally, thus preserving the authentic behavior of each piece.
+- HUnit, akin to JUnit in Java, provides a framework for unit testing in Haskell. It's particularly useful for our purposes due to its ability to handle complex test cases and assert various conditions within the game's logic.
+- We utilize mockBoard to simulate a standard chess board setup. This allows us to test scenarios in a controlled environment, ensuring our tests are both reliable and repeatable. We also used a custom board with only the relevant pieces placed, so as to test the functionality of the speicific functions.
+- Test results will indicate either success or failure for each test. A failure suggests a potential bug or inconsistency in game logic, necessitating further investigation and potential code adjustments.
+- When adding new features or modifying game rules, extend the test suite accordingly. This ensures new changes don't break existing functionality and adhere to the game's intended behavior.
