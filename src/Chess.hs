@@ -3,9 +3,10 @@ module Chess
   )
 where
 
+import qualified Control.Monad
 import Data.Char (chr, digitToInt, isAlpha, isDigit, ord)
 import qualified Data.Map.Strict as Map
-import Data.Time.Clock (UTCTime (utctDayTime), diffUTCTime, getCurrentTime)
+import Data.Time.Clock (UTCTime (utctDayTime), getCurrentTime)
 import DrawBoard
   ( Board,
     Color (..),
@@ -15,6 +16,7 @@ import DrawBoard
     drawBoard,
     newBoard,
   )
+import System.Console.ANSI (clearScreen, setCursorPosition)
 import Text.Read (readMaybe)
 
 allLocations :: [Location]
@@ -386,6 +388,8 @@ promptForAndValidate msg = do
       return (('x', 0), ('x', 0))
     "help" -> do
       return (('z', 0), ('z', 0))
+    "pause" -> do
+      return (('p', 0), ('p', 0))
     [x1, y1, ' ', x2, y2] -> do
       ( if isAlpha x1
           && isAlpha x2
@@ -425,6 +429,14 @@ respondToDraw = do
         else do
           putStrLn "Please respond with 'yes' or 'no'"
           respondToDraw
+
+waitForResume :: IO ()
+waitForResume = do
+  clearScreen
+  setCursorPosition 0 0
+  putStrLn "Enter 'resume' to continue"
+  input <- getLine
+  Control.Monad.unless (input == "resume") $ waitForResume
 
 play :: Board -> String -> String -> Int -> IO ()
 play board p1 p2 1 = do
@@ -543,6 +555,12 @@ playWithTimer board p1 p2 1 time1 time2
           case move of
             (('q', 0), ('q', 0)) ->
               return ()
+            (('p', 0), ('p', 0)) -> do
+              end <- getCurrentTime
+              let endInt = floor $ utctDayTime end :: Int
+              let diff = endInt - startInt
+              waitForResume
+              playWithTimer board p1 p2 1 (time1 - diff) time2
             (('z', 0), ('z', 0)) -> do
               displayInstructions
               end <- getCurrentTime
@@ -618,6 +636,12 @@ playWithTimer board p1 p2 _ time1 time2
           case move of
             (('q', 0), ('q', 0)) ->
               return ()
+            (('p', 0), ('p', 0)) -> do
+              end <- getCurrentTime
+              let endInt = floor $ utctDayTime end :: Int
+              let diff = endInt - startInt
+              waitForResume
+              playWithTimer board p1 p2 2 time1 (time2 - diff)
             (('z', 0), ('z', 0)) -> do
               displayInstructions
               end <- getCurrentTime
@@ -655,12 +679,12 @@ playWithTimer board p1 p2 _ time1 time2
                                 then do
                                   putStrLn "Check"
                                   if time2 - diff < 30
-                                    then playWithTimer board p1 p2 2 time1 30
-                                    else playWithTimer board p1 p2 2 time1 (time2 - diff)
+                                    then playWithTimer newBoard1 p1 p2 2 time1 30
+                                    else playWithTimer newBoard1 p1 p2 2 time1 (time2 - diff)
                                 else
                                   if time2 - diff < 30
-                                    then playWithTimer board p1 p2 2 time1 30
-                                    else playWithTimer board p1 p2 2 time1 (time2 - diff)
+                                    then playWithTimer newBoard1 p1 p2 2 time1 30
+                                    else playWithTimer newBoard1 p1 p2 2 time1 (time2 - diff)
                     else do
                       putStrLn "Illegal Move. Try again!"
                       end <- getCurrentTime
@@ -679,6 +703,7 @@ displayInstructions = do
   putStrLn "Played with two users"
   putStrLn "Possible commands are 'help', 'draw', 'quit', and making a move"
   putStrLn "Moves are made using the form 'xi xi' where x can be any character between a and h and i can be any integer from 1 to 8"
+  putStrLn "If you are using a timer you can pause with 'pause'"
   putStrLn ""
 
 getTime :: IO Int
