@@ -88,9 +88,12 @@ data Piece = Piece Color Type | PieceKingRook Color Type Boolean
 
 ## Additional Details
 
-- List any additional Haskell libraries required for the project (i.e., what
-  `extra-deps` have been added to `stack.yaml` files and `[build-depends]` have
-  been added to `package.yaml`/`<package_name>.cabal` files).
+## Additional Haskell Libraries Required
+  - containers >= 0.6.7 && < 0.7
+  - time
+  - ansi-terminal >= 0.11 && < 0.12
+  - HUnit
+
 - Briefly describe the structure of the code (what are the main components, the
   module dependency structure). Why was the project modularized in this way?
 - Choose (at least) one code excerpt that is a particularly good example of
@@ -98,12 +101,11 @@ data Piece = Piece Color Type | PieceKingRook Color Type Boolean
 - Were any parts of the code particularly difficult to expres using Haskell?
   What are the challenges in refining and/or refactoring this code to be a
   better example of idiomatic Haskell?
-- Describe any approaches attempted and then abandoned and the reasons why. What
-  did you learn by undertaking this project?
+
+## Attempted and Abandoned Approaches
+- We attempted to utilize a TUI library called Brick for displaying and playing the game. It would have made it easier to display the board because it would not have continuously displayed the next board in the terminal. Instead, it would have updated the screen each time a move was made. It would have made the timer easier to display, as well. We abandoned this because we were having trouble implementing the idea with Brick. We decided to spend our time implementing the timer in our current method because we were not certain we could accomplish the TUI in time. We wanted to add as many features as we could with the rest of our time.
+
+- We also attempted to provide a save game option to our implementation. We spent time researching ways to accomplish this, but unfortunately ran out of time to accomplish this stretch goal.
 
 Review the final project grading rubric and discuss any relevant aspects of the
 project.
-
-Note: Be sure that all `.hs` source files and any supporting files (e.g.,
-`stack.yaml`, `package.yaml`/`<package_name>.cabal` files, data files, examples,
-...) have been committed and pushed.
