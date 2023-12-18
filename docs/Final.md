@@ -13,7 +13,33 @@ necessary from the Proposal and/or Checkpoint documents).
 
 ## Project Execution Summary
 
-Describe the work done for the project and lessons learned.
+### Castling
+
+Castling is the only move in chess that alloows 2 pieces to move in a turn and there are 4 conditions that need to be met before we can castle. First, we need to check that the King and Rook has not moved yet. 
+
+Initially, we had a data type `Piece` as shown below where Color is White or Black and Type is the type of chess piece it is.
+
+```
+data Piece = Piece Color Type
+  deriving (Eq)
+```
+
+However, with the condition of checking if a piece has moved, we decided to add an extra boolean attribute to each Piece to indicate if it has moved. 
+```
+data Piece = Piece Color Type Boolean
+  deriving (Eq)
+```
+
+The next condition checked is if there are pieces in between the Rook and the King. The function `checkBetweenRows` is used if the squares king-side or queen-side are occupied and will return True if there are no pieces present. The third condition is checking if the King is in check by using the `isCheck` function. Finally, the fourth condition is checking if the squares the king passes through castling has the possibility of being taken. This means that if the two squares on the left and right of the king could be taken by the opposing player's pieces, we cannot castle. To check for this condition, we iterate through each of the opposing players' pieces and if one of them can land on that square, we return False.
+
+Some design choices that were made on castling was how to determine if the King or Rook has moved. The initial idea was to introduce an additional parameter in our play function, acting as a counter. We would increment the counter whenever a rook or king moves, and if the counter exceeds 2, we can then consider castling on that side. However, there are a few issues with this implementation. For instance, we lack information about which piece will be moved in the subsequent iterations of the play function. Additionally, a piece has the potential to move back and forth, leading to continuous increments in the counter. 
+
+A possible improvement in implementation is to split the King and Rook into seperate data types so only the boolean attributes are used for them. Currently, each chess piece has a boolean attribute but only the King and Rook would use the boolean values so the data type can be split as shown below.
+
+```
+data Piece = Piece Color Type | PieceKingRook Color Type Boolean
+  deriving (Eq)
+```
 
 ## Additional Details
 
