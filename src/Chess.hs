@@ -597,11 +597,11 @@ playWithTimer board p1 p2 1 time1 time2
                               if isCheck newBoard newBoard1 White
                                 then do
                                   putStrLn "Check"
-                                  if time1 - diff < 30
+                                  if time1 - diff < 30 && 0 < time1 - diff
                                     then playWithTimer newBoard1 p1 p2 2 30 time2
                                     else playWithTimer newBoard1 p1 p2 2 (time1 - diff) time2
                                 else
-                                  if time1 - diff < 30
+                                  if time1 - diff < 30 && 0 < time1 - diff
                                     then playWithTimer newBoard1 p1 p2 2 30 time2
                                     else playWithTimer newBoard1 p1 p2 2 (time1 - diff) time2
                     else do
@@ -678,19 +678,19 @@ playWithTimer board p1 p2 _ time1 time2
                               if isCheck newBoard1 newBoard1 Black
                                 then do
                                   putStrLn "Check"
-                                  if time2 - diff < 30
-                                    then playWithTimer newBoard1 p1 p2 2 time1 30
-                                    else playWithTimer newBoard1 p1 p2 2 time1 (time2 - diff)
+                                  if time2 - diff < 30 && 0 < time2 - diff
+                                    then playWithTimer newBoard1 p1 p2 1 time1 30
+                                    else playWithTimer newBoard1 p1 p2 1 time1 (time2 - diff)
                                 else
-                                  if time2 - diff < 30
-                                    then playWithTimer newBoard1 p1 p2 2 time1 30
-                                    else playWithTimer newBoard1 p1 p2 2 time1 (time2 - diff)
+                                  if time2 - diff < 30 && 0 < time2 - diff
+                                    then playWithTimer newBoard1 p1 p2 1 time1 30
+                                    else playWithTimer newBoard1 p1 p2 1 time1 (time2 - diff)
                     else do
                       putStrLn "Illegal Move. Try again!"
                       end <- getCurrentTime
                       let endInt = floor $ utctDayTime end :: Int
                       let diff = endInt - startInt
-                      playWithTimer board p1 p2 2 time1 (time2 - diff)
+                      playWithTimer board p1 p2 1 time1 (time2 - diff)
                 Nothing -> do
                   putStrLn "Illegal Move. Try again!"
                   end <- getCurrentTime
