@@ -27,8 +27,10 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal ==0.11.*
+    , base >=4.7 && <5
     , containers >=0.6.7 && <0.7
+    , time
   default-language: Haskell2010
   exposed-modules:
       Chess
@@ -48,9 +50,11 @@ executable chess-exe
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal ==0.11.*
+    , base >=4.7 && <5
     , chess
     , containers >=0.6.7 && <0.7
+    , time
   default-language: Haskell2010
 
 test-suite chess-test
@@ -65,7 +69,9 @@ test-suite chess-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       HUnit
+    , ansi-terminal ==0.11.*
     , base >=4.7 && <5
     , chess
     , containers >=0.6.7 && <0.7
+    , time
   default-language: Haskell2010
