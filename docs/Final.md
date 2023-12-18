@@ -86,26 +86,6 @@ data Piece = Piece Color Type | PieceKingRook Color Type Boolean
   deriving (Eq)
 ```
 
-## Checkmate
-
-At the end of every move, we check if the board is in checkmate after the move is made
-
-```
-isNotCheckMate :: Color -> Board -> Board -> Bool
-isNotCheckMate White b1 b2 = case Map.toList b2 of
-  [] -> False
-  ((key, value) : rest) ->
-    if getColor value == Black
-      then isNotCheckMate White b1 (Map.fromList rest)
-      else any (checkMove White key value b1) allLocations || isNotCheckMate White b1 (Map.fromList rest)
-isNotCheckMate Black b1 b2 = case Map.toList b2 of
-  [] -> False
-  ((key, value) : rest) ->
-    if getColor value == White
-      then isNotCheckMate Black b1 (Map.fromList rest)
-      else any (checkMove Black key value b1) allLocations || isNotCheckMate Black b1 (Map.fromList rest)
-```
-
 ## Additional Details
 
 ## Additional Haskell Libraries Required
@@ -116,8 +96,29 @@ isNotCheckMate Black b1 b2 = case Map.toList b2 of
 
 - Briefly describe the structure of the code (what are the main components, the
   module dependency structure). Why was the project modularized in this way?
+
+## Code Example
+```
+-- Move a piece from one location to another
+makeMove :: Location -> Location -> Piece -> Board -> Board
+makeMove ('e', 1) ('g', 1) (Piece White King True) b = castle White b "Right"
+makeMove ('e', 1) ('c', 1) (Piece White King True) b = castle White b "Left"
+makeMove ('e', 8) ('g', 8) (Piece Black King True) b = castle Black b "Right"
+makeMove ('e', 8) ('c', 8) (Piece Black King True) b = castle Black b "Left"
+makeMove l1@(_, 7) l2@(_, 8) (Piece White Pawn _) b = promotePawn White l1 l2 b
+makeMove l1@(_, 2) l2@(_, 1) (Piece Black Pawn _) b = promotePawn Black l1 l2 b
+makeMove l1 l2 p b = mod_board
+  where
+    insertion = Map.insert l2 p b
+    mod_board = Map.delete l1 insertion
+```
 - Choose (at least) one code excerpt that is a particularly good example of
   Haskell features, idioms, and/or style and describe it.
+
+## Challenges
+- One difficulty we faced was to create the isCheck and isCheckmate functions using Haskell at first because the most obvious approaching is iterating over all the pieces on the board. This is more complicated with Haskell. Ultimately we were able to solve the probelm by passing two list representations of our board to the function, one that removes pieces as we access the first item in the list and one that remains the same so we can check the conditions of check and checkmate.
+- Another difficulty we faced was not having immutable data types to store attributes such as whether the kings and rooks have moved for castling. To get around this issue we added a boolean at the end of each Piece and made it True for all the Pieces even though they did not need any boolean for castling.
+- We had trouble finding a way to refine our play/playWithTimer functions so they could be one function and also so that we did not need to have a version for each player making their move.
 - Were any parts of the code particularly difficult to expres using Haskell?
   What are the challenges in refining and/or refactoring this code to be a
   better example of idiomatic Haskell?
