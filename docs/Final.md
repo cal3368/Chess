@@ -129,7 +129,7 @@ For a King, we usually move one square around the King but castling allows the K
 
 ## Check
 
-
+After a player makes a legal move, the new state of the board is checked to see if the opponent is in check. It does this by determining if the player who made the move has any pieces that can make a legal move and reach the opponents king. If this is the case then the game also checks if it is checkmate which is explained below. If it is not checkmate than the opponent is alerted it is in check and the game continues. As with any time a player makes a move, the move they make must result in them not being in check.
 
 ## Checkmate
 
