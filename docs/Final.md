@@ -8,8 +8,7 @@ Team members:
 
 ## Summary Description
 
-Reiterate the summary description of the overall goal of the project (updated as
-necessary from the Proposal and/or Checkpoint documents).
+We are going to create a chess game using concepts learned throughout the semester. This includes IO interaction between two users to display the chess board and pieces. We also want to implement input validation for valid moves and a coordinate grid using Data.Map.Struct to represent each point on the board from a-h and 1-8. We will symbolically represent each type of piece in its current location on the board. Chess pieces have to be moved and removed correctly and when a king piece is checked, the player is warned and must move the king out of check or another piece to protect the king. When checkmate is reached the players will be notified of who won and the game will end. We need to define a situation for a draw occurring. All the traditional chess rules will be followed. If time permits we may add support for timed games and a stalemate situation.
 
 ## Project Execution Summary
 
@@ -161,8 +160,8 @@ isNotCheckMate Black b1 b2 = case Map.toList b2 of
 - ansi-terminal >= 0.11 && < 0.12
 - HUnit
 
-- Briefly describe the structure of the code (what are the main components, the
-  module dependency structure). Why was the project modularized in this way?
+## Code Structure
+We utilized the model-view-controller structure for our project. The view component is represented by our DrawBoard module. This module contains the code responsible for displaying the current game state on a board in the terminal. The model component is contained in out Chess module and is responsible for the functional aspects of the game of chess being implemented in our program. This includes everything that goes with making moves and changing the board approproately. The Controller module is responsible to the user interaction and contains the IO interactions that allow the game to run and display in the terminal. We decided to use this structure because it broke the program into its necessary components and provided a good framework.
 
 ## Code Example
 
@@ -179,6 +178,11 @@ makeMove l1 l2 p b = mod_board
   where
     insertion = Map.insert l2 p b
     mod_board = Map.delete l1 insertion
+```
+
+```
+We are going to create a chess game using concepts learned throughout the semester. This includes IO interaction between two users to display the chess board and pieces. We also want to implement input validation for valid moves and a coordinate grid using Data.Map.Struct to represent each point on the board from a-h and 1-8. We will symbolically represent each type of piece in its current location on the board. Chess pieces have to be moved and removed correctly and when a king piece is checked, the player is warned and must move the king out of check or another piece to protect the king. When checkmate is reached the players will be notified of who won and the game will end. We need to define a situation for a draw occurring. All the traditional chess rules will be followed. If time permits we may add support for timed games and a stalemate situation.
+
 ```
 
 - Choose (at least) one code excerpt that is a particularly good example of
