@@ -35,6 +35,7 @@ library
   exposed-modules:
       Chess
       DrawBoard
+      Controller
   other-modules:
       Paths_chess
   autogen-modules:

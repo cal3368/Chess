@@ -1,43 +1,12 @@
 module DrawBoard
-  ( Color (..),
-    Type (..),
-    Piece (..),
-    Location,
-    Board,
-    newBoard,
+  ( newBoard,
     drawBoard,
   )
 where
 
+import Chess
 import Data.Char
 import qualified Data.Map.Strict as Map
-
-data Color = White | Black
-  deriving (Eq, Enum, Bounded, Read, Show)
-
-data Type = Pawn | Knight | Bishop | Queen | King | Rook
-  deriving (Eq, Enum, Bounded, Read, Show)
-
-data Piece = Piece Color Type Bool
-  deriving (Eq)
-
-instance Show Piece where
-  show (Piece White Pawn _) = "♙"
-  show (Piece White Rook _) = "♖"
-  show (Piece White Knight _) = "♘"
-  show (Piece White Bishop _) = "♗"
-  show (Piece White Queen _) = "♕"
-  show (Piece White King _) = "♔"
-  show (Piece Black Pawn _) = "♟"
-  show (Piece Black Rook _) = "♜"
-  show (Piece Black Knight _) = "♞"
-  show (Piece Black Bishop _) = "♝"
-  show (Piece Black Queen _) = "♛"
-  show (Piece Black King _) = "♚"
-
-type Location = (Char, Int)
-
-type Board = Map.Map Location Piece
 
 newBoard :: Board
 newBoard =

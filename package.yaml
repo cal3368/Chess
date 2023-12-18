@@ -39,6 +39,7 @@ library:
   exposed-modules:
     - Chess
     - DrawBoard
+    - Controller
 
 executables:
   chess-exe:

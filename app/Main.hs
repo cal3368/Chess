@@ -1,6 +1,6 @@
-module Main (main) where
+module Main (Main.main) where
 
-import qualified Chess
+import Controller
 
 main :: IO ()
-main = Chess.main
+main = Controller.main
