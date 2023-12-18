@@ -13,7 +13,52 @@ necessary from the Proposal and/or Checkpoint documents).
 
 ## Project Execution Summary
 
-### Castling
+## Data Types
+
+There are a couple of data types that have to be considered when implementing Chess. First, we have to represent each Chess piece and we decided to use Enums to list out the different colors and chess types as they are constant values. This is shown in our data types `Color` and `Type`.
+
+```
+data Color = White | Black
+  deriving (Eq, Enum, Bounded, Read, Show)
+
+data Type = Pawn | Knight | Bishop | Queen | King | Rook
+  deriving (Eq, Enum, Bounded, Read, Show)
+```
+
+Next, we create a Piece data type that combines the two data types into a constructor with an additional boolean attribute to determine if a piece has moved. The boolean attribute is used when a player wants to Castle and checks if the King or Rook has moved.
+
+```
+data Piece = Piece Color Type Bool
+  deriving (Eq)
+```
+
+To represent each square in the chess board, we use type called Location which is a tuple of Character and Int. To represent the chess board, we use `Data.Strict.Map` where the key is a Location and the value is a chess Piece. 
+
+```
+type Location = (Char, Int)
+
+type Board = Map.Map Location Piece
+```
+
+To represent each chess piece on the board, we use unicode characters in terminal UI.
+
+```
+instance Show Piece where
+  show (Piece White Pawn _) = "♙"
+  show (Piece White Rook _) = "♖"
+  show (Piece White Knight _) = "♘"
+  show (Piece White Bishop _) = "♗"
+  show (Piece White Queen _) = "♕"
+  show (Piece White King _) = "♔"
+  show (Piece Black Pawn _) = "♟"
+  show (Piece Black Rook _) = "♜"
+  show (Piece Black Knight _) = "♞"
+  show (Piece Black Bishop _) = "♝"
+  show (Piece Black Queen _) = "♛"
+  show (Piece Black King _) = "♚"
+```
+
+## Castling
 
 Castling is the only move in chess that alloows 2 pieces to move in a turn and there are 4 conditions that need to be met before we can castle. First, we need to check that the King and Rook has not moved yet. 
 
