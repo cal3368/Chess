@@ -1,8 +1,4 @@
-module DrawBoard
-  ( newBoard,
-    drawBoard,
-  )
-where
+module DrawBoard where
 
 import Chess
 import Data.Char
@@ -64,3 +60,6 @@ getRowSquare 0 _ _ = []
 getRowSquare c n board = case Map.lookup (chr (96 + c), n) board of
   Nothing -> getRowSquare (pred c) n board ++ [Nothing]
   Just i -> getRowSquare (pred c) n board ++ [Just i]
+
+test :: Board
+test = Map.fromList [(('a', 8), Piece White King False), (('f', 2), Piece White Queen False), (('h', 1), Piece Black King False)]

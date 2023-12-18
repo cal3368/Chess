@@ -246,9 +246,6 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Bishop _) board
 getColor :: Piece -> Color
 getColor (Piece color _ _) = color
 
--- getType :: Piece -> Type
--- getType (Piece _ t _) = t
-
 promotePawn :: Color -> Location -> Location -> Board -> Board
 promotePawn White l1 l2 b = Map.insert l2 (Piece White Queen True) (Map.delete l1 b)
 promotePawn Black l1 l2 b = Map.insert l2 (Piece Black Queen True) (Map.delete l1 b)
@@ -378,7 +375,7 @@ isCheckMate Black b1 b2 = case Map.toList b2 of
 
 isStalemate :: Color -> Board -> Board -> Bool
 isStalemate c b1 b2 = case Map.toList b1 of
-  [] -> False
+  [] -> True
   ((key, value) : rest) ->
     if getColor value /= c
       then isStalemate c (Map.fromList rest) b2
