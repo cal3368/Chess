@@ -86,6 +86,71 @@ data Piece = Piece Color Type | PieceKingRook Color Type Boolean
   deriving (Eq)
 ```
 
+## Maneuvering Chess pieces
+
+To move chess pieces on a board, there are multiple checks that need to be passed. 
+
+First, we need to check if the piece we are moving is the same color as the owner and the function `validateOwner` performs this check. Basically, we check if the color attribute of the `Piece` matches with the current player. The next condition to check is if the piece is in bounds of the chess board which can be accomplished by checking if the letter is in between `a` and `h` and the number is between 1 and 8. In addition, we need to check if there are any pieces in between the square we are moving from and the square we are moving to. 
+
+### Chess Piece movement
+
+For each chess type, different rules have to be followed when moving around the chess board. For example bishops can only move diagonally and rooks vertically and horiozontally. The function `checkLegal` handles this check when a piece wants to move from one square to another. The function uses pattern matching is used to match each chess type with the squares they can move to. A rook pattern matching is shown below to illustrate horizontal and vertical movement
+
+```
+checkLegal (c1, i1) (c2, i2) (Piece _ Rook _) board
+  | c1 == c2 && checkBetweenCol (c1, i1) (c2, i2) board = True
+  | i1 == i2 && checkBetweenRow (c1, i1) (c2, i2) board = True
+  | otherwise = False
+```
+
+However, there are also some special cases among the chess pieces for example pawns and kings. For pawns, they are not allowed to move backwards so we need to handle cases where white pawns can only move up a number and black pawns can only move down a number. In addition, if a pawn has not moved, they can move two squares forward which can be checked by looking at a pawn's original location. The last move a pawn can make is moving diagonally to take a piece. The last pattern match checks if the opposing players piece is present diagonal to the pawn and if it is, we can make the move.
+
+```
+checkLegal (c1, i1) (c2, i2) (Piece White Pawn _) board
+  | i1 == 2 && c1 == c2 && (i2 - i1 == 2 || i2 - i1 == 1) && not (checkBetweenCol (c1, i1) (c2, i2) board) = case Map.lookup (c2, i2) board of
+      Just _ -> False
+      Nothing -> True
+  | i1 == 2 && c1 == c2 && (i2 - i1 == 2 || i2 - i1 == 1) = case Map.lookup (c2, i2) board of
+      Just _ -> False
+      Nothing -> True
+  | c1 == c2 && i2 - i1 == 1 = case Map.lookup (c2, i2) board of
+      Just _ -> False
+      Nothing -> True
+  | abs (c2i - c1i) == 1 && (i2 - i1) == 1 = case Map.lookup (c2, i2) board of
+      Just (Piece Black _ _) -> True
+      _ -> False
+  | otherwise = False
+  where
+    c1i = ord c1 - ord 'a'
+    c2i = ord c2 - ord 'a'
+```
+
+For a King, we usually move one square around the King but castling allows the King to move two spaces for the left and right.
+
+## Check
+
+
+
+## Checkmate
+
+At the end of every move, we check if the board is not in checkmate after the move is made. We iterate through all the pieces on the board and if the piece is the opposing players' color, we move to the next piece. If it's the same color, we check if the piece can move the player out of check through any of it's legal moves. 
+
+```
+isNotCheckMate :: Color -> Board -> Board -> Bool
+isNotCheckMate White b1 b2 = case Map.toList b2 of
+  [] -> False
+  ((key, value) : rest) ->
+    if getColor value == Black
+      then isNotCheckMate White b1 (Map.fromList rest)
+      else any (checkMove White key value b1) allLocations || isNotCheckMate White b1 (Map.fromList rest)
+isNotCheckMate Black b1 b2 = case Map.toList b2 of
+  [] -> False
+  ((key, value) : rest) ->
+    if getColor value == White
+      then isNotCheckMate Black b1 (Map.fromList rest)
+      else any (checkMove Black key value b1) allLocations || isNotCheckMate Black b1 (Map.fromList rest)
+```
+
 ## Additional Details
 
 ## Additional Haskell Libraries Required

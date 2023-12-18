@@ -277,7 +277,7 @@ makeMove l1 l2 p b = mod_board
     mod_board = Map.delete l1 insertion
 
 {- Function to find the location of the opposite color King.
-Used for checking if a player is in check/checkate
+Used for checking if a player is in check/checkmate
 -}
 locateKing :: Color -> Board -> Maybe Location
 locateKing White board =
