@@ -163,7 +163,7 @@ checkDirection (c1, i1) (c2, i2) board
   | c1 == c2 = checkBetweenCol (c1, i1) (c2, i2) board
   | otherwise = checkBetweenRow (c1, i1) (c2, i2) board
 
--- Chekc
+-- Checks if a piece can move from one location to another according to the chess type property
 checkLegal :: Location -> Location -> Piece -> Board -> Bool
 checkLegal (c1, i1) (c2, i2) (Piece _ Knight _) _
   | abs (c2i - c1i) == 1 && abs (i2 - i1) == 2
@@ -254,16 +254,16 @@ checkLegal (c1, i1) (c2, i2) (Piece _ Bishop _) board
     c1i = ord c1 - ord 'a'
     c2i = ord c2 - ord 'a'
 
+-- Gets the color of a piece
 getColor :: Piece -> Color
 getColor (Piece color _ _) = color
 
--- getType :: Piece -> Type
--- getType (Piece _ t _) = t
-
+-- Promotes a pawn if it reaches the other end of the board
 promotePawn :: Color -> Location -> Location -> Board -> Board
 promotePawn White l1 l2 b = Map.insert l2 (Piece White Queen True) (Map.delete l1 b)
 promotePawn Black l1 l2 b = Map.insert l2 (Piece Black Queen True) (Map.delete l1 b)
 
+-- Move a piece from one location to another
 makeMove :: Location -> Location -> Piece -> Board -> Board
 makeMove ('e', 1) ('g', 1) (Piece White King True) b = castle White b "Right"
 makeMove ('e', 1) ('c', 1) (Piece White King True) b = castle White b "Left"
@@ -295,7 +295,7 @@ locateKing Black board =
         then Just key
         else locateKing Black (Map.fromList rest)
 
-{- Function to check if a board is in check -}
+{- Function to check if a board is in check by using the opposing players color -}
 isCheck :: Board -> Board -> Color -> Bool
 isCheck board1 board2 White = case locateKing White board1 of
   Nothing -> False
@@ -320,6 +320,7 @@ isCheck board1 board2 _ = case locateKing Black board1 of
               || isCheck board1 (Map.fromList rest) Black
       )
 
+-- Helper function for isCheck
 isCheckAux :: Location -> Location -> Piece -> Board -> Bool
 isCheckAux (c1, i1) (c2, i2) (Piece White Pawn _) _ = i2 - i1 == 1 && abs (ord c2 - ord c1) == 1
 isCheckAux (c1, i1) (c2, i2) (Piece Black Pawn _) _ = i1 - i2 == 1 && abs (ord c2 - ord c1) == 1
@@ -373,7 +374,8 @@ checkDiagonal (c1, i1) (c2, i2) board
       Just _ -> False
   | otherwise = True
 
--- Checks if the board is not in checkmate
+{- Checks if the board is not in checkmate by checking if any pieces
+of the color can move to prevent check -}
 isNotCheckMate :: Color -> Board -> Board -> Bool
 isNotCheckMate White b1 b2 = case Map.toList b2 of
   [] -> False
