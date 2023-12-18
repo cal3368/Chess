@@ -1,4 +1,4 @@
-module Controller where
+module Controller (main) where
 
 import Chess
 import qualified Control.Monad

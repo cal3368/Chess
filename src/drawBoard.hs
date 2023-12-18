@@ -1,4 +1,4 @@
-module DrawBoard where
+module DrawBoard (newBoard, drawBoard) where
 
 import Chess
 import Data.Char
