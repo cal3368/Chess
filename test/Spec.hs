@@ -1,7 +1,7 @@
-import Chess hiding (main)
+import Chess
 import qualified Data.Map.Strict as Map
-import DrawBoard
-import Test.HUnit
+import DrawBoard (newBoard)
+import Test.HUnit (Counts, Test (..), assertEqual, runTestTT)
 
 main :: IO Counts
 main = do
