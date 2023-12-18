@@ -1,4 +1,5 @@
 import Chess hiding (main)
+import qualified Data.Map.Strict as Map
 import DrawBoard
 import Test.HUnit
 
@@ -29,11 +30,22 @@ tests =
       TestLabel "Check Legal" test18,
       TestLabel "Check Legal" test19,
       TestLabel "Check Legal" test20,
-      TestLabel "Check Legal" test21
+      TestLabel "Check Legal" test21,
+      TestLabel "Locate King" test22,
+      TestLabel "Locate King" test23,
+      TestLabel "Check check" test24,
+      TestLabel "Check check" test25,
+      TestLabel "Check check" test26,
+      TestLabel "Check check" test27,
+      TestLabel "Check check" test28,
+      TestLabel "Check check" test29,
+      TestLabel "Check check" test30,
+      TestLabel "Check check" test31,
+      TestLabel "Check check" test32
     ]
 
 mockBoard :: Board
-mockBoard = DrawBoard.newBoard
+mockBoard = newBoard
 
 test1 :: Test
 test1 = TestCase (assertEqual "Occupied by Correct Color" True (validateOwner ('a', 2) White mockBoard))
@@ -97,3 +109,54 @@ test20 = TestCase (assertEqual "King one square move" True (checkLegal ('e', 1) 
 
 test21 :: Test
 test21 = TestCase (assertEqual "King two square move" False (checkLegal ('e', 1) ('e', 3) (Piece White King True) mockBoard))
+
+test22 :: Test
+test22 = TestCase (assertEqual "Locating White King" (Just ('e', 1)) (locateKing Black mockBoard))
+
+test23 :: Test
+test23 = TestCase (assertEqual "Locating Black King" (Just ('e', 8)) (locateKing White mockBoard))
+
+test24 :: Test
+test24 =
+  let board = Map.fromList ([(('a', 1), Piece Black Rook True), (('e', 1), Piece White King True)])
+   in TestCase (assertEqual ("Check from Rook - Horizontal") True (isCheck board board Black))
+
+test25 :: Test
+test25 =
+  let board = Map.fromList ([(('e', 7), Piece Black Rook True), (('e', 1), Piece White King True)])
+   in TestCase (assertEqual ("Check from Rook - Horizontal") True (isCheck board board Black))
+
+test26 :: Test
+test26 =
+  let board = Map.fromList ([(('a', 5), Piece Black Rook True), (('e', 1), Piece White King True)])
+   in TestCase (assertEqual ("No Cheque from Rook") False (isCheck board board Black))
+
+test27 :: Test
+test27 =
+  let board = Map.fromList ([(('a', 1), Piece Black Bishop True), (('e', 1), Piece White King True)])
+   in TestCase (assertEqual ("Check from Bishop") False (isCheck board board Black))
+
+test28 :: Test
+test28 =
+  let board = Map.fromList ([(('a', 5), Piece Black Bishop True), (('e', 1), Piece White King True)])
+   in TestCase (assertEqual ("No Cheque from Rook") True (isCheck board board Black))
+
+test29 :: Test
+test29 =
+  let board = Map.fromList ([(('d', 2), Piece Black Queen True), (('d', 5), Piece White King True)])
+   in TestCase (assertEqual ("Check from Queen - vertical") True (isCheck board board Black))
+
+test30 :: Test
+test30 =
+  let board = Map.fromList ([(('a', 5), Piece Black Queen True), (('e', 1), Piece White King True)])
+   in TestCase (assertEqual ("Check from Queen - Diagonal") True (isCheck board board Black))
+
+test31 :: Test
+test31 =
+  let board = Map.fromList ([(('g', 5), Piece Black Queen True), (('d', 5), Piece White King True)])
+   in TestCase (assertEqual ("Check from Queen - Horizontal") True (isCheck board board Black))
+
+test32 :: Test
+test32 =
+  let board = Map.fromList ([(('d', 5), Piece Black Queen True), (('f', 4), Piece White King True)])
+   in TestCase (assertEqual ("No Cheque from Queen") False (isCheck board board Black))

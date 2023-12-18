@@ -1,7 +1,4 @@
-module Chess
-  ( main,
-  )
-where
+module Chess where
 
 import qualified Control.Monad
 import Data.Char (chr, digitToInt, isAlpha, isDigit, ord)
