@@ -436,7 +436,7 @@ waitForResume = do
   setCursorPosition 0 0
   putStrLn "Enter 'resume' to continue"
   input <- getLine
-  Control.Monad.unless (input == "resume") $ waitForResume
+  Control.Monad.unless (input == "resume") waitForResume
 
 play :: Board -> String -> String -> Int -> IO ()
 play board p1 p2 1 = do

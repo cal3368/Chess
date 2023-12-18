@@ -9,11 +9,6 @@ module DrawBoard
   )
 where
 
--- import Brick (Padding (Max, Pad), Widget, hLimit, padLeft, padRight, simpleMain, str, vBox, vLimit, withBorderStyle)
--- import Brick.Widgets.Border qualified as B
--- import Brick.Widgets.Border.Style qualified as BS
--- import Brick.Widgets.Center qualified as C
--- import Brick.Widgets.Core
 import Data.Char
 import qualified Data.Map.Strict as Map
 
@@ -100,47 +95,3 @@ getRowSquare 0 _ _ = []
 getRowSquare c n board = case Map.lookup (chr (96 + c), n) board of
   Nothing -> getRowSquare (pred c) n board ++ [Nothing]
   Just i -> getRowSquare (pred c) n board ++ [Just i]
-
--- -- Function to convert a Board to a string representation of the chess board
--- chessBoardToString :: Board -> String
--- chessBoardToString board =
---   unlines
---     [ "   a   b   c   d   e   f   g   h",
---       " +-------------------------------+",
---       stringRow 8,
---       " +---+---+---+---+---+---+---+---+",
---       stringRow 7,
---       " +---+---+---+---+---+---+---+---+",
---       stringRow 6,
---       " +---+---+---+---+---+---+---+---+",
---       stringRow 5,
---       " +---+---+---+---+---+---+---+---+",
---       stringRow 4,
---       " +---+---+---+---+---+---+---+---+",
---       stringRow 3,
---       " +---+---+---+---+---+---+---+---+",
---       stringRow 2,
---       " +---+---+---+---+---+---+---+---+",
---       stringRow 1,
---       " +-------------------------------+",
---       "   a   b   c   d   e   f   g   h"
---     ]
---   where
---     stringRow :: Int -> String
---     stringRow row = show row ++ "|" ++ concatMap squareString (getRowSquare 8 row board) ++ show row
-
---     squareString :: Maybe Piece -> String
---     squareString Nothing = "  " ++ " |"
---     squareString (Just piece) = " " ++ show piece ++ " |"
-
---     showRow :: Int -> String
---     showRow row =
---       show row
---         ++ "| "
---         ++ concatMap (\col -> showSquare (chr (col + ord 'a'), row)) [1 .. 8]
-
---     showSquare :: Location -> String
---     showSquare loc =
---       case getSquare newBoard loc of
---         Nothing -> ". "
---         Just piece -> show piece ++ " "
