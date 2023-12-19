@@ -191,10 +191,7 @@ makeMove l1 l2 p b = mod_board
     mod_board = Map.delete l1 insertion
 ```
 
-```
 We are going to create a chess game using concepts learned throughout the semester. This includes IO interaction between two users to display the chess board and pieces. We also want to implement input validation for valid moves and a coordinate grid using Data.Map.Struct to represent each point on the board from a-h and 1-8. We will symbolically represent each type of piece in its current location on the board. Chess pieces have to be moved and removed correctly and when a king piece is checked, the player is warned and must move the king out of check or another piece to protect the king. When checkmate is reached the players will be notified of who won and the game will end. We need to define a situation for a draw occurring. All the traditional chess rules will be followed. If time permits we may add support for timed games and a stalemate situation.
-
-```
 
 ## Challenges
 
