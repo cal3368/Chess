@@ -246,9 +246,6 @@ We are going to create a chess game using concepts learned throughout the semest
 
 - We also attempted to provide a save game option to our implementation. We spent time researching ways to accomplish this, but unfortunately ran out of time to accomplish this stretch goal.
 
-Review the final project grading rubric and discuss any relevant aspects of the
-project.
-
 ## Testing.
 
 - This test suite is designed to rigorously validate the rules and logic of our Chess game implementation. It ensures that every game piece behaves as expected in various scenarios, maintaining the integrity of traditional chess rules.
