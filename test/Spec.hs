@@ -56,7 +56,9 @@ tests =
       TestLabel "Checkmate check" test43,
       TestLabel "Checkmate check" test44,
       TestLabel "Checkmate check" test45,
-      TestLabel "Checkmate check" test46
+      TestLabel "Checkmate check" test46,
+      TestLabel "Castling check" test47,
+      TestLabel "Castling check" test48
     ]
 
 mockBoard :: Board
@@ -260,3 +262,20 @@ test46 :: Test
 test46 =
   let board = Map.fromList [(('g', 5), Piece Black Queen True), (('f', 1), Piece White King True), (('a', 2), Piece Black Rook True)]
    in TestCase (assertEqual "Checking for Stalemate" False (isStalemate White board board))
+
+test47 :: Test
+test47 =
+  let board = Map.fromList [(('e', 1), Piece White King True), (('h', 1), Piece White Rook True)]
+   in TestCase (assertEqual "King and Rook have not moved" True (checkCastling ('e', 1) ('g', 1) (Piece White King True) board))
+
+-- test48 :: Test
+-- test48 =
+--   let board = Map.fromList [(('e', 1), Piece White King True), (('h', 1), Piece White Rook True)]
+--       newBoard = makeMove (('h', 1) ('g', 1) (Piece White Rook True) board)
+--    in TestCase (assertEqual "King and Rook have not moved" True (checkCastling ('e', 1) ('g', 1) (Piece White King True) newboard))
+
+test48 :: Test
+test48 =
+  let initialBoard = Map.fromList [(('e', 1), Piece White King True), (('h', 1), Piece White Rook True)]
+      boardAfterMove = makeMove ('a', 1) ('a', 2) (Piece White Pawn True) initialBoard
+   in TestCase (assertEqual "King and Rook have not moved" True (checkCastling ('e', 1) ('g', 1) (Piece White King True) boardAfterMove))
