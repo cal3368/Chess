@@ -103,7 +103,7 @@ checkCastlingMoved (c1, _) (c2, _) (Piece Black _ True) board =
 -- Check if the adjascent squares of the king is under attack
 checkCastlingCheck :: Location -> Location -> Color -> Board -> Board -> Bool
 checkCastlingCheck (c1, i1) (c2, i2) White board1 board2 = case Map.toList board1 of
-  [] -> False
+  [] -> True
   ((key, value) : rest) ->
     if getColor value == White
       then checkCastlingCheck (c1, i1) (c2, i2) White (Map.fromList rest) board2
@@ -111,7 +111,7 @@ checkCastlingCheck (c1, i1) (c2, i2) White board1 board2 = case Map.toList board
     where
       checkedSq = if c2 > c1 then [('f', 1), ('g', 1)] else [('d', 1), ('c', 1)]
 checkCastlingCheck (c1, i1) (c2, i2) Black board1 board2 = case Map.toList board1 of
-  [] -> False
+  [] -> True
   ((key, value) : rest) ->
     if getColor value == Black
       then checkCastlingCheck (c1, i1) (c2, i2) Black (Map.fromList rest) board2

@@ -105,13 +105,13 @@ play board p1 p2 1 = do
               if checkMove White l1 piece board l2
                 then
                   let newBoard1 = makeMove l1 l2 piece board
-                   in if isCheck newBoard newBoard1 White && not (isNotCheckMate Black newBoard1 newBoard1)
+                   in if isCheck newBoard1 newBoard1 White && not (isNotCheckMate Black newBoard1 newBoard1)
                         then do
                           drawBoard newBoard1
                           putStrLn ("Checkmate! " ++ p1 ++ " wins!")
                           return ()
                         else
-                          if isCheck newBoard newBoard1 White
+                          if isCheck newBoard1 newBoard1 White
                             then do
                               putStrLn "Check"
                               play newBoard1 p1 p2 2
@@ -221,7 +221,7 @@ playWithTimer board p1 p2 1 time1 time2
                   if checkMove White l1 piece board l2
                     then
                       let newBoard1 = makeMove l1 l2 piece board
-                       in if isCheck newBoard newBoard1 White && not (isNotCheckMate Black newBoard1 newBoard1)
+                       in if isCheck newBoard1 newBoard1 White && not (isNotCheckMate Black newBoard1 newBoard1)
                             then do
                               drawBoard newBoard1
                               putStrLn ("Checkmate! " ++ p1 ++ " wins!")
@@ -230,7 +230,7 @@ playWithTimer board p1 p2 1 time1 time2
                               end <- getCurrentTime
                               let endInt = floor $ utctDayTime end :: Int
                               let diff = endInt - startInt
-                              if isCheck newBoard newBoard1 White
+                              if isCheck newBoard1 newBoard1 White
                                 then do
                                   putStrLn "Check"
                                   if time1 - diff < 30 && 0 < time1 - diff
