@@ -196,12 +196,9 @@ We are going to create a chess game using concepts learned throughout the semest
 
 ```
 
-- Choose (at least) one code excerpt that is a particularly good example of
-  Haskell features, idioms, and/or style and describe it.
-
 ## Challenges
 
-- One difficulty we faced was to create the isCheck and isCheckmate functions using Haskell at first because the most obvious approaching is iterating over all the pieces on the board. This is more complicated with Haskell. Ultimately we were able to solve the probelm by passing two list representations of our board to the function, one that removes pieces as we access the first item in the list and one that remains the same so we can check the conditions of check and checkmate.
+- One difficulty we faced was to create the isCheck and isCheckmate functions using Haskell at first because the most obvious approaching is iterating over all the pieces on the board. This is more complicated with Haskell. Ultimately we were able to solve the problem by passing two list representations of our board to the function, one that removes pieces as we access the first item in the list and one that remains the same so we can check the conditions of check and checkmate.
 - Another difficulty we faced was not having immutable data types to store attributes such as whether the kings and rooks have moved for castling. To get around this issue we added a boolean at the end of each Piece and made it True for all the Pieces even though they did not need any boolean for castling.
 - We had trouble finding a way to refine our play/playWithTimer functions so they could be one function and also so that we did not need to have a version for each player making their move.
 - Were any parts of the code particularly difficult to expres using Haskell?
