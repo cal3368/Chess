@@ -195,12 +195,9 @@ We are going to create a chess game using concepts learned throughout the semest
 
 ## Challenges
 
-- One difficulty we faced was to create the isCheck and isCheckmate functions using Haskell at first because the most obvious approaching is iterating over all the pieces on the board. This is more complicated with Haskell. Ultimately we were able to solve the problem by passing two list representations of our board to the function, one that removes pieces as we access the first item in the list and one that remains the same so we can check the conditions of check and checkmate.
+- One difficulty we faced was to create the isCheck and isCheckmate functions using Haskell at first because the most obvious approach is iterating over all the pieces on the board. This is more complicated with Haskell. Ultimately we were able to solve the problem by passing two list representations of our board to the function, one that removes pieces as we access the first item in the list and one that remains the same so we can check the conditions of check and checkmate.
 - Another difficulty we faced was not having immutable data types to store attributes such as whether the kings and rooks have moved for castling. To get around this issue we added a boolean at the end of each Piece and made it True for all the Pieces even though they did not need any boolean for castling.
 - We had trouble finding a way to refine our play/playWithTimer functions so they could be one function and also so that we did not need to have a version for each player making their move.
-- Were any parts of the code particularly difficult to expres using Haskell?
-  What are the challenges in refining and/or refactoring this code to be a
-  better example of idiomatic Haskell?
 - Adding dependencies in general was a difficult task to get around, we primarily looked at the cabal files for the assignments to understand how things actually work and how is cabal file used. We initally started by directly adding the changes to `.cabal` file only to find out that stack basically rebuilds the .cabal file from `package.yaml`. We also had problem installing `HUnit` since the official page for HUnit has no instructions on how to download the packages unlike how npm has the detailed documentation how to go about this process.
 
 ## Attempted and Abandoned Approaches
