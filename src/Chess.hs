@@ -107,7 +107,7 @@ checkCastlingCheck (c1, i1) (c2, i2) White board1 board2 = case Map.toList board
   ((key, value) : rest) ->
     if getColor value == White
       then checkCastlingCheck (c1, i1) (c2, i2) White (Map.fromList rest) board2
-      else not (any (checkMove Black key value board2) checkedSq)
+      else not (any (checkMove Black key value board2) checkedSq) && checkCastlingCheck (c1, i1) (c2, i2) White (Map.fromList rest) board2
     where
       checkedSq = if c2 > c1 then [('f', 1), ('g', 1)] else [('d', 1), ('c', 1)]
 checkCastlingCheck (c1, i1) (c2, i2) Black board1 board2 = case Map.toList board1 of
@@ -115,7 +115,7 @@ checkCastlingCheck (c1, i1) (c2, i2) Black board1 board2 = case Map.toList board
   ((key, value) : rest) ->
     if getColor value == Black
       then checkCastlingCheck (c1, i1) (c2, i2) Black (Map.fromList rest) board2
-      else not (any (checkMove White key value board2) checkedSq)
+      else not (any (checkMove White key value board2) checkedSq) && checkCastlingCheck (c1, i1) (c2, i2) Black (Map.fromList rest) board2
     where
       checkedSq = if c2 > c1 then [('f', 8), ('g', 8)] else [('d', 8), ('c', 8)]
 
@@ -333,7 +333,7 @@ isCheckAux l1@(c1, i1) l2@(c2, i2) (Piece _ Queen _) board
   | i1 == i2 = checkBetweenRow l1 l2 board
   | c1 == c2 = checkBetweenCol l1 l2 board
   | otherwise = checkDiagonal l1 l2 board
-isCheckAux _ _ _ _ = True
+isCheckAux _ _ _ _ = False
 
 {- Function to check if there is an unblocked path between two locations in a row -}
 checkBetweenRow :: Location -> Location -> Board -> Bool
