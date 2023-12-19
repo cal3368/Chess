@@ -226,3 +226,8 @@ We are going to create a chess game using concepts learned throughout the semest
 - We utilize mockBoard to simulate a standard chess board setup. This allows us to test scenarios in a controlled environment, ensuring our tests are both reliable and repeatable. We also used a custom board with only the relevant pieces placed, so as to test the functionality of the speicific functions.
 - Test results will indicate either success or failure for each test. A failure suggests a potential bug or inconsistency in game logic, necessitating further investigation and potential code adjustments.
 - When adding new features or modifying game rules, extend the test suite accordingly. This ensures new changes don't break existing functionality and adhere to the game's intended behavior.
+
+## Demo
+
+Here is the demo gameplay that goes over a good chunk aspects of the implemented game.
+Link : https://www.youtube.com/watch?v=hO-ogKTKxPU
