@@ -188,6 +188,10 @@ isNotCheckMate White b1 b2 = case Map.toList b2 of
       else any (checkMove White key value b1) allLocations || isNotCheckMate White b1 (Map.fromList rest)
 ```
 
+## Timer
+
+Our timed version of the game is optional and is selected before the game starts by inputting a valid int for the time each player is to have. This input value is the starting timer and then for each move, the player who's turn it is sees the amount of time left on their timer. The change in the timer is calculated by finding the difference in Universal Time from the beginning of the turn to the end and subtracting that from the time they has at the beginning of the turn. If a timer goes below 30 seconds but stays above 0, it is reset to 30 seconds for the next turn. If it is below zero after a player makes their move, the game recognizes this and announces the other player as the winner. There is also a feature to pause the game which stops the timers and 'clears' the display. The user can then hit resume to continue playing.
+
 ## Additional Details
 
 ## Additional Haskell Libraries Required
